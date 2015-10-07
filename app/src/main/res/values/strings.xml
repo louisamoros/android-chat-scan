@@ -3,7 +3,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
-
     <!-- Strings related to login -->
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email">Email</string>
@@ -23,5 +22,6 @@
 
     <!-- Strings related to home -->
     <string name="title_activity_home">HomeActivity</string>
+    <string name="search_name">Enter contact</string>
 
 </resources>
