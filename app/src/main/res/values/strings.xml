@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">AndroidChatScan</string>
-
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_login">Sign in</string>
+
 
     <!-- Strings related to login -->
+    <string name="title_activity_login">Sign in</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
     <string name="action_sign_in">Sign in or register</string>
@@ -17,4 +17,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- Strings related to chat -->
+    <string name="title_activity_chat">ChatActivity</string>
+
+    <!-- Strings related to home -->
+    <string name="title_activity_home">HomeActivity</string>
+
 </resources>
