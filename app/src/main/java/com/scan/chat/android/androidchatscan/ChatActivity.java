@@ -27,7 +27,7 @@ public class ChatActivity extends Activity {
         mRecyclerView.setLayoutManager(mStaggeredLayoutManager);
         return true;
     }
-    
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
