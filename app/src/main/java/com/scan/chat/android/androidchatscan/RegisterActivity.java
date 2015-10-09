@@ -1,28 +1,17 @@
 package com.scan.chat.android.androidchatscan;
 
-
-
-import android.app.Activity;
-import android.app.LoaderManager;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.content.Intent;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -33,25 +22,21 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 
-public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
+/**
+ * A login screen that offers login via email/password.
+ */
+public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -60,63 +45,45 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
-    private static final String API_BASE_URL = "http://training.loicortola.com/chat-rest";
-    private static final String TAG = MainActivity.class.getSimpleName();
-    public static final String EXTRA_LOGIN = "ext_login";
-
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private EditText mEmailView;
     private EditText mPasswordView;
+    private EditText mPasswordConfirmView;
     private View mProgressView;
     private View mLoginFormView;
-    private Button mEmailSignInButton;
-    private Button mSignUpButton;
+
+    private Button mRegisterButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
+        setContentView(R.layout.activity_register);
+        // Set up the register form.
+        mEmailView = (EditText) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordConfirmView = (EditText) findViewById(R.id.passwordConfirm);
+
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    attemptRegister();
                     return true;
                 }
                 return false;
             }
         });
 
-        //sign in button
-        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        mRegisterButton = (Button) findViewById(R.id.email_register_button);
+        mRegisterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-        //sign up button
-        mSignUpButton = (Button) findViewById(R.id.sign_up_button);
-        mSignUpButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //go to resister form
-                // Declare activity switch intent
-                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                intent.putExtra(EXTRA_LOGIN, mEmailView.getText().toString());
-
-                // Start activity
-                startActivity(intent);
+                attemptRegister();
             }
         });
 
@@ -124,24 +91,12 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
         mProgressView = findViewById(R.id.login_progress);
     }
 
-    private void populateAutoComplete() {
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    @Override
-    protected void onPause() {
-        if (mAuthTask != null) {
-            mAuthTask.cancel(true);
-        }
-        super.onPause();
-    }
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
+    private void attemptRegister() {
         if (mAuthTask != null) {
             return;
         }
@@ -153,16 +108,10 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String passwordConfirm = mPasswordConfirmView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
@@ -175,6 +124,29 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
             cancel = true;
         }
 
+        // Check for a valid password, if the user entered one.
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        if (!TextUtils.isEmpty(passwordConfirm) && !isPasswordValid(passwordConfirm)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+        // compare passwords
+        else {
+            if(!password.equals(passwordConfirm))
+            {
+                mPasswordView.setError(getString(R.string.error_no_match));
+                focusView = mPasswordView;
+                cancel = true;
+            }
+        }
+
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -184,9 +156,7 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
             // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
-            String usernameStr = mEmailView.getText().toString();
-            String passwordStr = mPasswordView.getText().toString();
-            mAuthTask.execute(usernameStr,passwordStr);
+            mAuthTask.execute((Void) null);
         }
     }
 
@@ -261,8 +231,6 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
             emails.add(cursor.getString(ProfileQuery.ADDRESS));
             cursor.moveToNext();
         }
-
-        addEmailsToAutoComplete(emails);
     }
 
     @Override
@@ -281,20 +249,11 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
     }
 
 
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(MainActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
         private final String mPassword;
@@ -305,40 +264,17 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
         }
 
         @Override
-        protected Boolean doInBackground(String... params) {
+        protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-            String username = params[0];
-            String password = params[1];
-
-            // Here, call the login webservice
-            HttpClient client = new DefaultHttpClient();
-
-            // Webservice URL
-            String url = new StringBuilder(API_BASE_URL + "/connect/")
-                    .append(username)
-                    .append("/")
-                    .append(password)
-                    .toString();
-            // Request
             try {
-                // FIXME to be removed. Simulates heavy network workload
+                // Simulate network access.
                 Thread.sleep(2000);
-                //return true;
+                return true;
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                return false;
             }
-            HttpGet loginRequest = new HttpGet(url);
 
-           try {
-                HttpResponse response = client.execute(loginRequest);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    return true;
-                }
-            } catch (IOException e) {
-                Log.w(TAG, "Exception occured while logging in: " + e.getMessage());
-            }
-            return false;
         }
 
         @Override
@@ -349,21 +285,18 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
             if (success)
             {
                 // Everything good!
-                Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
+                Toast.makeText(RegisterActivity.this, R.string.register_success, LENGTH_LONG).show();
 
                 // Declare activity switch intent
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                intent.putExtra(EXTRA_LOGIN, mEmailView.getText().toString());
+                Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
 
                 // Start activity
                 startActivity(intent);
-                // If you don't want the current activity to be in the backstack,
-                // uncomment the following line:
-                // finish();
+                // we don't want the current activity to be in the backstack,
+                finish();
 
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                Toast.makeText(RegisterActivity.this, R.string.register_error, LENGTH_LONG).show();
             }
         }
 
@@ -374,3 +307,4 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
         }
     }
 }
+
