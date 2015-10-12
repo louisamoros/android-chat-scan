@@ -18,11 +18,12 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."
     </string>
+    <string name="no_connection">No network connection available</string>
 
     <!-- Strings related to register -->
     <string name="title_activity_register">Register</string>
-    <string name="register_success">Your are registerded</string>
-    <string name="register_error">something Failed.</string>
+    <string name="register_success">Registered successfully</string>
+    <string name="register_error">User already exists</string>
     <string name="prompt_password_confirm">Confirm your password</string>
     <string name="action_register">Register</string>
     <string name="error_no_match">Passwords don\'t match</string>
