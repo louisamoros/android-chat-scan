@@ -376,7 +376,7 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
                 Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
 
                 // Declare activity switch intent
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
                 intent.putExtra(EXTRA_LOGIN, mEmailView.getText().toString());
 
                 // Start activity
