@@ -1,15 +1,11 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -52,6 +48,7 @@ public class ChatActivity extends Activity {
         username = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
 
         // Call method to load messages with EXTRA_LOGIN
+
         //onLoadMessages();
 
         //send message button
@@ -64,6 +61,76 @@ public class ChatActivity extends Activity {
                 onSendMessage();
             }
         });
+
+        onLoadMessages();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+
+        getMenuInflater().inflate(R.menu.menu_chat, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.action_profile) {
+            return true;
+        }
+
+        if (id == R.id.action_log_out) {
+            return true;
+        }
+        else return false;
+
+    }
+
+
+    class RequestTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... uri) {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response;
+            String responseString = null;
+            try {
+                response = httpclient.execute(new HttpGet(uri[0]));
+                StatusLine statusLine = response.getStatusLine();
+                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    response.getEntity().writeTo(out);
+                    responseString = out.toString();
+                    out.close();
+                } else {
+                    //Closes the connection.
+                    response.getEntity().getContent().close();
+                    throw new IOException(statusLine.getReasonPhrase());
+                }
+            } catch (ClientProtocolException e) {
+                //TODO Handle problems..
+            } catch (IOException e) {
+                //TODO Handle problems..
+            }
+            return responseString;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //Do anything with response..
+        }
     }
 
     protected void onLoadMessages() {
@@ -73,41 +140,7 @@ public class ChatActivity extends Activity {
         // showSpinner()
 
         // Request message list
-        class RequestTask extends AsyncTask<String, String, String> {
-
-            @Override
-            protected String doInBackground(String... uri) {
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpResponse response;
-                String responseString = null;
-                try {
-                    response = httpclient.execute(new HttpGet(uri[0]));
-                    StatusLine statusLine = response.getStatusLine();
-                    if(statusLine.getStatusCode() == HttpStatus.SC_OK){
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        response.getEntity().writeTo(out);
-                        responseString = out.toString();
-                        out.close();
-                    } else{
-                        //Closes the connection.
-                        response.getEntity().getContent().close();
-                        throw new IOException(statusLine.getReasonPhrase());
-                    }
-                } catch (ClientProtocolException e) {
-                    //TODO Handle problems..
-                } catch (IOException e) {
-                    //TODO Handle problems..
-                }
-                return responseString;
-            }
-
-            @Override
-            protected void onPostExecute(String result) {
-                super.onPostExecute(result);
-                //Do anything with response..
-            }
-        }
-        // >>>>>>>>
+        new RequestTask().execute("http://training.loicortola.com/chat-rest/2.0");
 
         // <<<<<<<<
         // If request too long or fail (400)
@@ -117,7 +150,6 @@ public class ChatActivity extends Activity {
         // Else request succeed (200)
         // hide spinner hideSpinner()
         // show message list
-
     }
 
     private void onSendMessage() {
