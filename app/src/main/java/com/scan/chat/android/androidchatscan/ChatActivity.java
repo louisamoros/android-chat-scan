@@ -3,36 +3,48 @@ package com.scan.chat.android.androidchatscan;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity {
 
-    private LoadMessagesTask mLoadMessagesTask = null;
     private UserSendTask sendTask;
     private String auth;
     private String username;
-    private String allMessages;
+    private ListView listMessage;
+    List<Message> allMessages;
 
     // UI references.
     private EditText mMessageText;
@@ -54,12 +66,9 @@ public class ChatActivity extends Activity {
         // Set up the login form.
         mMessageText = (EditText) findViewById(R.id.EditText);
         mSendButton = (Button) findViewById(R.id.Button);
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSendMessage();
-            }
-        });
+
+        // List view setup
+        listMessage = (ListView) findViewById(R.id.ListMessage);
     }
 
     @Override
@@ -86,28 +95,14 @@ public class ChatActivity extends Activity {
             return true;
         }
 
-        if (id == R.id.action_log_out) {
-            return true;
-        }
-        else return false;
+        return id == R.id.action_log_out;
 
     }
 
 
-    // Reads an InputStream and converts it to a String.
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer);
-    }
+
 
     class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
-        InputStream is = null;
-        // Only display the first 500 characters of the retrieved
-        // web page content.
-        int len = 1500;
 
         @Override
         protected Boolean doInBackground(String... params) {
@@ -127,9 +122,9 @@ public class ChatActivity extends Activity {
                 int response = conn.getResponseCode();
 
                 if(response == 200) {
-                    is = conn.getInputStream();
-                    // Convert the InputStream into a string
-                    allMessages = readIt(is, len);
+                    Type type = new TypeToken<ArrayList<Message>>() {}.getType();
+                    String isToString = IOUtils.toString(conn.getInputStream(), "UTF-8");
+                    allMessages = new Gson().fromJson(isToString, type);
                     return true;
                 }
             }
@@ -141,13 +136,8 @@ public class ChatActivity extends Activity {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mLoadMessagesTask = null;
-            //showProgress(false);
-
             if (success) {
-                // Everything good!
-                TextView messages = (TextView) findViewById(R.id.Messages);
-                messages.setText(allMessages);
+//                listMessage.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,allMessages));
             } else {
                 Toast.makeText(ChatActivity.this, "Something went wrong.", LENGTH_LONG).show();
             }
@@ -161,7 +151,7 @@ public class ChatActivity extends Activity {
         // showSpinner()
 
         // Request message list
-        new LoadMessagesTask().execute("http://training.loicortola.com/chat-rest/2.0");
+        new LoadMessagesTask().execute();
 
         // <<<<<<<<
         // If request too long or fail (400)

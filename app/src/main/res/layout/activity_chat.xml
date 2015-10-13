@@ -14,11 +14,11 @@
         android:layout_marginBottom="8dp" android:visibility="gone" />
 
     <!-- Messages -->
-    <TextView
-        android:id="@+id/Messages"
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_above="@+id/InnerRelativeLayout"
+        android:id="@+id/ListMessage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/InnerRelativeLayout" />
+        android:layout_height="match_parent"/>
 
     <!-- If no messages -->
 
