@@ -3,7 +3,6 @@ package com.scan.chat.android.androidchatscan;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.v4.widget.SwipeRefreshLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,12 +19,12 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
-
 import java.io.OutputStreamWriter;
 import java.util.UUID;
+
+import org.json.JSONObject;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -39,6 +39,7 @@ public class ChatActivity extends Activity {
     // UI references.
     private EditText mMessageText;
     private Button mSendButton;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,15 @@ public class ChatActivity extends Activity {
 
         // Call method to load messages with EXTRA_AUTH
         onLoadMessages();
+
+        //get the "pull to refresh" view
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+             @Override
+             public void onRefresh() {
+                 onLoadMessages();
+             }
+         });
 
         // send message button
         // Set up the login form.
@@ -150,6 +160,8 @@ public class ChatActivity extends Activity {
                 // Everything good!
                 TextView messages = (TextView) findViewById(R.id.Messages);
                 messages.setText(allMessages);
+                //stop the animation after all the messages are fully loaded
+                mSwipeRefreshLayout.setRefreshing(false);
             } else {
                 Toast.makeText(ChatActivity.this, "Something went wrong.", LENGTH_LONG).show();
             }
