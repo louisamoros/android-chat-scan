@@ -9,13 +9,15 @@ public class Message {
     private String login;
     private String message;
 
-    public long getId() {
-        return id;
+    public Message(long id, String login, String message) {
+        this.id = id;
+        this.login = login;
+        this.message = message;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+    public long getId() { return id; }
+
+    public void setId(long id) { this.id = id; }
 
     public String getLogin() {
         return login;
@@ -31,5 +33,10 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return this.login + ": -- " + this.message + " --";
     }
 }

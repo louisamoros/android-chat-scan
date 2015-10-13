@@ -2,20 +2,22 @@ package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Message;
+
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.scan.chat.android.androidchatscan.model.Message;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -37,7 +39,7 @@ public class ChatActivity extends Activity {
     private String username;
     private String password;
     private ListView listMessage;
-    List<Message> allMessages;
+    ArrayList<Message> allMessages;
 
 
     // UI references.
@@ -149,7 +151,9 @@ public class ChatActivity extends Activity {
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
-                // listMessage.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,allMessages));
+                // Set the adapter
+                ArrayAdapter<Message> adapter = new ArrayAdapter<>(ChatActivity.this, android.R.layout.simple_list_item_1,allMessages);
+                listMessage.setAdapter(adapter);
                 // Stop the animation after all the messages are fully loaded
                 mSwipeRefreshLayout.setRefreshing(false);
             } else {

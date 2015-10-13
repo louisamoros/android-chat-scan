@@ -27,7 +27,6 @@
             android:layout_above="@+id/InnerRelativeLayout" >
 
             <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_above="@+id/InnerRelativeLayout"
                 android:id="@+id/ListMessage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
