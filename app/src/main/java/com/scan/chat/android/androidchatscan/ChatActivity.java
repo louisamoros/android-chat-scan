@@ -4,19 +4,15 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,17 +21,13 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity {
@@ -49,6 +41,7 @@ public class ChatActivity extends Activity {
     // UI references.
     private EditText mMessageText;
     private Button mSendButton;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +55,15 @@ public class ChatActivity extends Activity {
         // Call method to load messages with EXTRA_AUTH
         onLoadMessages();
 
+        //get the "pull to refresh" view
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+             @Override
+             public void onRefresh() {
+                 onLoadMessages();
+             }
+         });
+
         // send message button
         // Set up the login form.
         mMessageText = (EditText) findViewById(R.id.EditText);
@@ -74,7 +76,6 @@ public class ChatActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-
         getMenuInflater().inflate(R.menu.menu_chat, menu);
         return true;
     }
@@ -137,7 +138,9 @@ public class ChatActivity extends Activity {
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
-//                listMessage.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,allMessages));
+                // listMessage.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,allMessages));
+                // Stop the animation after all the messages are fully loaded
+                mSwipeRefreshLayout.setRefreshing(false);
             } else {
                 Toast.makeText(ChatActivity.this, "Something went wrong.", LENGTH_LONG).show();
             }
@@ -163,6 +166,10 @@ public class ChatActivity extends Activity {
         // show message list
     }
 
+    /**
+     * This method gets the string from the message edittext and
+     * executes the asynchronous task to send the message to the server
+     */
     private void onSendMessage() {
         
         // get message string from editview
@@ -182,8 +189,7 @@ public class ChatActivity extends Activity {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Represents an asynchronous message sending task
      */
     public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
@@ -199,6 +205,7 @@ public class ChatActivity extends Activity {
             String message = params[0];
             String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
             OutputStreamWriter writer = null;
+            InputStream is = null;
             BufferedReader reader = null;
             HttpURLConnection conn = null;
 
@@ -239,6 +246,8 @@ public class ChatActivity extends Activity {
 
                 //get response
                 int response = conn.getResponseCode();
+
+
                 if(response == 200)
                     return true;
 
@@ -252,6 +261,15 @@ public class ChatActivity extends Activity {
             }
 
             return false;
+        }
+
+        // Reads an InputStream and converts it to a String.
+        public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
+            Reader reader = null;
+            reader = new InputStreamReader(stream, "UTF-8");
+            char[] buffer = new char[len];
+            reader.read(buffer);
+            return new String(buffer);
         }
 
         @Override
