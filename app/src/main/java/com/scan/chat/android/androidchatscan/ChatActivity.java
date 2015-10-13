@@ -3,6 +3,7 @@ package com.scan.chat.android.androidchatscan;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +23,11 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
@@ -152,6 +157,10 @@ public class ChatActivity extends Activity {
         // show message list
     }
 
+    /**
+     * This method gets the string from the message edittext and
+     * executes the asynchronous task to send the message to the server
+     */
     private void onSendMessage() {
         
         // get message string from editview
@@ -171,8 +180,7 @@ public class ChatActivity extends Activity {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Represents an asynchronous message sending task
      */
     public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
@@ -188,6 +196,7 @@ public class ChatActivity extends Activity {
             String message = params[0];
             String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
             OutputStreamWriter writer = null;
+            InputStream is = null;
             BufferedReader reader = null;
             HttpURLConnection conn = null;
 
@@ -228,6 +237,8 @@ public class ChatActivity extends Activity {
 
                 //get response
                 int response = conn.getResponseCode();
+
+
                 if(response == 200)
                     return true;
 
@@ -241,6 +252,15 @@ public class ChatActivity extends Activity {
             }
 
             return false;
+        }
+
+        // Reads an InputStream and converts it to a String.
+        public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
+            Reader reader = null;
+            reader = new InputStreamReader(stream, "UTF-8");
+            char[] buffer = new char[len];
+            reader.read(buffer);
+            return new String(buffer);
         }
 
         @Override
