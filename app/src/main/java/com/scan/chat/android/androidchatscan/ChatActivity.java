@@ -1,6 +1,8 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -34,6 +36,7 @@ public class ChatActivity extends Activity {
     private UserSendTask sendTask;
     private String auth;
     private String username;
+    private String password;
     private String allMessages;
 
     // UI references.
@@ -46,15 +49,19 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Retrieve auth extra passed from previous activity
-        auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
-        username = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
+        // Retrieve shared preferences content
+        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        username = sPrefs.getString("username", null);
+        password = sPrefs.getString("password", null);
+        auth = sPrefs.getString("auth", null);
+
 
         // Call method to load messages with EXTRA_AUTH
         onLoadMessages();
 
         //get the "pull to refresh" view
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        //mSwipeRefreshLayout.setColorSchemeResources(Color.BLACK);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
              @Override
              public void onRefresh() {

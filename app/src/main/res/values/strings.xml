@@ -33,6 +33,7 @@
     <!-- Strings related to chat -->
     <string name="title_activity_chat">ChatActivity</string>
     <string name="label_send_button">Send</string>
+    <string name="label_send_img_button">Send</string>
     <string name="sent_success">message sent</string>
     <string name="sent_failed">error, try again</string>
     <string name="prompt_message">write a message</string>

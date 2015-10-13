@@ -1,6 +1,7 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -63,6 +64,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
     protected static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     protected static final String EXTRA_AUTH = "ext_auth";
     protected static final String EXTRA_LOGIN = "ext_login";
+    public static final String PREFS_NAME = "MyPrefsFile";
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /**
@@ -85,6 +87,19 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //first check if there is a user already connected
+        //in this case, we can directly go to chat activity
+        SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
+        if((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth")))
+        {
+            // Declare activity switch intent
+            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+            // Start activity
+            startActivity(intent);
+        }
+
+
         // Set up the login form.
         nUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -304,20 +319,27 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             if (success)
             {
                 String username = nUsernameView.getText().toString();
+                String password = mPasswordView.getText().toString();
 
                 // Everything good!
                 Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
 
                 // Declare activity switch intent
                 Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-                intent.putExtra(EXTRA_AUTH, basicAuth);
-                intent.putExtra(EXTRA_LOGIN, username);
+
+                // save username and password using a shared preference
+                SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = sPrefs.edit();
+                editor.putString("username", username);
+                editor.putString("password", password);
+                editor.putString("auth", basicAuth);
+                editor.commit();
 
                 // Start activity
                 startActivity(intent);
                 // If you don't want the current activity to be in the backstack,
                 // uncomment the following line:
-                // finish();
+                //finish();
 
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
