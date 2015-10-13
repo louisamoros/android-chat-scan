@@ -12,9 +12,8 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Retrieve login extra passed from previous activity
+        // Retrieve login extra passed from main (login) activity
         String login = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
-
     }
 
     @Override
@@ -38,4 +37,6 @@ public class HomeActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }
