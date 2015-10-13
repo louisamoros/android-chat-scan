@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -54,26 +55,28 @@ import static android.widget.Toast.LENGTH_LONG;
 public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     private static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
+    protected static final String EXTRA_AUTH = "ext_auth";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private EditText mEmailView;
+    private EditText nUsernameView;
     private EditText mPasswordView;
     private EditText mPasswordConfirmView;
     private View mProgressView;
     private View mLoginFormView;
 
     private Button mRegisterButton;
+    private String basicAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         // Set up the register form.
-        mEmailView = (EditText) findViewById(R.id.email);
+        nUsernameView = (EditText) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordConfirmView = (EditText) findViewById(R.id.passwordConfirm);
 
@@ -111,12 +114,12 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
         }
 
         // Reset errors.
-        mEmailView.setError(null);
+        nUsernameView.setError(null);
         mPasswordView.setError(null);
         mPasswordConfirmView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String email = nUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
         String passwordConfirm = mPasswordConfirmView.getText().toString();
 
@@ -125,12 +128,12 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+            nUsernameView.setError(getString(R.string.error_field_required));
+            focusView = nUsernameView;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+            nUsernameView.setError(getString(R.string.error_invalid_email));
+            focusView = nUsernameView;
             cancel = true;
         }
 
@@ -266,11 +269,11 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
      */
     public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mUsername;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String username, String password) {
+            mUsername = username;
             mPassword = password;
         }
 
@@ -284,37 +287,10 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
             BufferedReader reader = null;
             HttpURLConnection conn = null;
 
-            /*try {
+            String userp = new StringBuilder(username + ":" + password).toString();
 
-                URL imageUrl = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setReadTimeout(15000);
-                conn.setConnectTimeout(15000);
-                conn.setRequestMethod("POST");
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-                conn.connect();
-
-                //Create JSONObject here
-                JSONObject jsonParam = new JSONObject();
-                jsonParam.put("login", username);
-                jsonParam.put("password", password);
-                OutputStreamWriter out = new   OutputStreamWriter(conn.getOutputStream());
-                out.write(jsonParam.toString());
-                out.close();
-
-
-                int response = conn.getResponseCode();
-                if(response == 200)
-                    return true;
-
-            }
-            catch(Exception e){
-                Toast.makeText(RegisterActivity.this, e.getMessage(),LENGTH_LONG).show();
-
-            }*/
-
+            //just in case of resistration success, extra to pass to chatActivity
+            basicAuth = "Basic " + Base64.encodeToString(userp.getBytes(), Base64.NO_WRAP);
 
             try {
                 URL imageUrl = new URL(urlString);
@@ -324,7 +300,6 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
                 conn.setDoInput(true);
-                //conn.setChunkedStreamingMode(0);
 
                 //Create JSONObject here
                 JSONObject jsonParam = new JSONObject();
@@ -370,6 +345,7 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
 
                 // Declare activity switch intent
                 Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                intent.putExtra(EXTRA_AUTH, basicAuth);
 
                 // Start activity
                 startActivity(intent);
@@ -386,15 +362,6 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
             mAuthTask = null;
             showProgress(false);
         }
-    }
-
-    // Reads an InputStream and converts it to a String.
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer);
     }
 }
 
