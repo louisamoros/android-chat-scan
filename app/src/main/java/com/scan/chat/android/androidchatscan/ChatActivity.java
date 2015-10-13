@@ -35,6 +35,7 @@ public class ChatActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+
         getMenuInflater().inflate(R.menu.menu_chat, menu);
         return true;
     }
@@ -48,7 +49,14 @@ public class ChatActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings) {return true;
+        }
+
+        if (id == R.id.action_profile) {
+            return true;
+        }
+
+        if (id == R.id.action_log_out) {
             return true;
         }
 
