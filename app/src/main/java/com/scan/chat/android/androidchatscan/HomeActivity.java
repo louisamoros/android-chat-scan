@@ -13,7 +13,7 @@ public class HomeActivity extends Activity {
         setContentView(R.layout.activity_home);
 
         // Retrieve login extra passed from previous activity
-        String login = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
+        String login = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
 
     }
 
