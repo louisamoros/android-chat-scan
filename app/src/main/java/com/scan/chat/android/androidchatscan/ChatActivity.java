@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -54,11 +55,11 @@ public class ChatActivity extends Activity {
         //get the "pull to refresh" view
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-             @Override
-             public void onRefresh() {
-                 onLoadMessages();
-             }
-         });
+            @Override
+            public void onRefresh() {
+                onLoadMessages();
+            }
+        });
 
         // send message button
         // Set up the login form.
