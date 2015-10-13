@@ -11,11 +11,15 @@ public class ChatActivity extends Activity {
 
     private RecyclerView mRecyclerView;
     private StaggeredGridLayoutManager mStaggeredLayoutManager;
+    private TravelListAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        mAdapter = new TravelListAdapter(this);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override

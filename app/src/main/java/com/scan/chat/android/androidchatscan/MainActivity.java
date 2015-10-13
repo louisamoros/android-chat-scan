@@ -1,7 +1,5 @@
 package com.scan.chat.android.androidchatscan;
 
-
-
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.database.Cursor;
@@ -90,6 +88,7 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // Set up the login form.
