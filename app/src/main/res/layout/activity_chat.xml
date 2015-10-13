@@ -20,18 +20,12 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/InnerRelativeLayout" >
 
-        <ScrollView
-            android:id="@+id/scroll"
+        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/ListMessage"
+            android:layout_above="@+id/InnerRelativeLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/InnerRelativeLayout" >
+            android:layout_height="match_parent"/>
 
-            <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/ListMessage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        </ScrollView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
