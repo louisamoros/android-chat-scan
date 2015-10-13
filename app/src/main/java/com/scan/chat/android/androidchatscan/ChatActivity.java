@@ -1,12 +1,18 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -18,6 +24,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity {
 
@@ -73,35 +83,78 @@ public class ChatActivity extends Activity {
     class RequestTask extends AsyncTask<String, String, String> {
 
         @Override
-        protected String doInBackground(String... uri) {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response;
-            String responseString = null;
-            try {
-                response = httpclient.execute(new HttpGet(uri[0]));
-                StatusLine statusLine = response.getStatusLine();
-                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    response.getEntity().writeTo(out);
-                    responseString = out.toString();
-                    out.close();
-                } else {
-                    //Closes the connection.
-                    response.getEntity().getContent().close();
-                    throw new IOException(statusLine.getReasonPhrase());
+        protected Boolean doInBackground(String... params) {
+
+            String username = params[0];
+            String password = params[1];
+
+            // Webservice URL
+            String urlString = new StringBuilder(API_BASE_URL + "/connect/").toString();
+            String userp = new StringBuilder(username + ":" + password).toString();
+            basicAuth = "Basic " + Base64.encodeToString(userp.getBytes(), Base64.NO_WRAP);
+
+            //check connection
+            ConnectivityManager connMgr = (ConnectivityManager)
+                    getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            if(networkInfo != null && networkInfo.isConnected()) {
+                // everything is so far
+
+                try {
+
+                    //authentification
+                    URL imageUrl = new URL(urlString);
+                    HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
+                    conn.setRequestProperty("Authorization", basicAuth);
+
+                    conn.setConnectTimeout(30000);
+                    conn.setReadTimeout(30000);
+                    conn.setRequestMethod("GET");
+                    conn.setDoInput(true);
+                    conn.connect();
+
+                    int response = conn.getResponseCode();
+
+                    if(response == 200)
+                        return true;
                 }
-            } catch (ClientProtocolException e) {
-                //TODO Handle problems..
-            } catch (IOException e) {
-                //TODO Handle problems..
+                catch(IOException e){
+                    Toast.makeText(MainActivity.this, e.getMessage(), LENGTH_LONG).show();
+
+                }
+
+            } else {
+                // display error
+                Toast.makeText(MainActivity.this, R.string.no_connection, LENGTH_LONG).show();
             }
-            return responseString;
+
+            return false;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            //Do anything with response..
+        protected void onPostExecute(final Boolean success) {
+            mAuthTask = null;
+            showProgress(false);
+
+            if (success)
+            {
+                // Everything good!
+                Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
+
+                // Declare activity switch intent
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                intent.putExtra(EXTRA_AUTH, basicAuth);
+
+                // Start activity
+                startActivity(intent);
+                // If you don't want the current activity to be in the backstack,
+                // uncomment the following line:
+                // finish();
+
+            } else {
+                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.requestFocus();
+            }
         }
     }
 
