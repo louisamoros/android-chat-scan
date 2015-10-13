@@ -2,17 +2,26 @@ package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+
+import android.util.Base64;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.view.inputmethod.InputMethodManager;
 
 import android.util.Log;
 import android.widget.Toast;
 
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.content.Intent;
@@ -30,6 +39,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
@@ -52,7 +67,7 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
-    private static final String API_BASE_URL = "http://training.loicortola.com/chat-rest";
+    private static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String EXTRA_LOGIN = "ext_login";
 
@@ -76,6 +91,8 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
         setContentView(R.layout.activity_main);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mEmailView, InputMethodManager.SHOW_IMPLICIT);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -185,7 +202,8 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        //return email.contains("@");
+        return true;
     }
 
     private boolean isPasswordValid(String password) {
@@ -299,38 +317,51 @@ public class MainActivity extends Activity  implements LoaderCallbacks<Cursor> {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            // TODO: attempt authentication against a network service.
 
             String username = params[0];
             String password = params[1];
 
-            // Here, call the login webservice
-            HttpClient client = new DefaultHttpClient();
-
             // Webservice URL
-            String url = new StringBuilder(API_BASE_URL + "/connect/")
-                    .append(username)
-                    .append("/")
-                    .append(password)
-                    .toString();
-            // Request
-            try {
-                // FIXME to be removed. Simulates heavy network workload
-                Thread.sleep(2000);
-                //return true;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            HttpGet loginRequest = new HttpGet(url);
+            String urlString = new StringBuilder(API_BASE_URL + "/connect/").toString();
+            String userp = new StringBuilder(username + ":" + password).toString();
+            String basicAuth = "Basic " + Base64.encodeToString(userp.getBytes(), Base64.NO_WRAP);
 
-           try {
-                HttpResponse response = client.execute(loginRequest);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    return true;
+            //check connection
+            ConnectivityManager connMgr = (ConnectivityManager)
+                    getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            if(networkInfo != null && networkInfo.isConnected()) {
+                // everything is so far
+
+                try {
+
+                    //authentification
+                    URL imageUrl = new URL(urlString);
+                    HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
+                    conn.setRequestProperty("Authorization", basicAuth);
+
+                    conn.setConnectTimeout(30000);
+                    conn.setReadTimeout(30000);
+                    conn.setRequestMethod("GET");
+                    conn.setDoInput(true);
+                    conn.connect();
+
+                    //is = conn.getInputStream();
+                    int response = conn.getResponseCode();
+
+                    if(response == 200)
+                        return true;
                 }
-            } catch (IOException e) {
-                Log.w(TAG, "Exception occured while logging in: " + e.getMessage());
+                catch(IOException e){
+                    Toast.makeText(MainActivity.this, e.getMessage(),LENGTH_LONG).show();
+
+                }
+
+            } else {
+                // display error
+                Toast.makeText(MainActivity.this, R.string.no_connection, LENGTH_LONG).show();
             }
+
             return false;
         }
 
