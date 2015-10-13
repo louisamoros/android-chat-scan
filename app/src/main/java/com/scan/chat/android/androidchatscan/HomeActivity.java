@@ -12,8 +12,9 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Retrieve login extra passed from main (login) activity
-        String login = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
+        // Retrieve login extra passed from previous activity
+        String auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
+
     }
 
     @Override
