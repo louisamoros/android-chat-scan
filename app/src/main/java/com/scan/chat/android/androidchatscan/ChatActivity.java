@@ -28,8 +28,8 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Retrieve login extra passed from previous activity
-        String login = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
+        // Retrieve auth extra passed from previous activity
+        String auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
 
         // Call method to load messages with EXTRA_LOGIN
         onLoadMessages();
