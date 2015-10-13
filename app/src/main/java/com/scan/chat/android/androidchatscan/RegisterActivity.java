@@ -50,9 +50,9 @@ import static android.widget.Toast.LENGTH_LONG;
 
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers login via username/password.
  */
-public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor> {
+public class RegisterActivity extends Activity{
 
     private static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     protected static final String EXTRA_AUTH = "ext_auth";
@@ -105,7 +105,7 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
 
     /**
      * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
+     * If there are form errors (invalid username, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private void attemptRegister() {
@@ -119,7 +119,7 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
         mPasswordConfirmView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = nUsernameView.getText().toString();
+        String username = nUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
         String passwordConfirm = mPasswordConfirmView.getText().toString();
 
@@ -127,12 +127,8 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
         View focusView = null;
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(username)) {
             nUsernameView.setError(getString(R.string.error_field_required));
-            focusView = nUsernameView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            nUsernameView.setError(getString(R.string.error_invalid_email));
             focusView = nUsernameView;
             cancel = true;
         }
@@ -168,15 +164,9 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute(email, password);
+            mAuthTask = new UserLoginTask(username, password);
+            mAuthTask.execute(username, password);
         }
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        //return email.contains("@");
-        return true;
     }
 
     private boolean isPasswordValid(String password) {
@@ -219,49 +209,6 @@ public class RegisterActivity extends Activity implements LoaderCallbacks<Cursor
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
 
     /**
      * Represents an asynchronous login/registration task used to authenticate

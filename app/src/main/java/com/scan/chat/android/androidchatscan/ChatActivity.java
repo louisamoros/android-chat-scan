@@ -29,6 +29,7 @@ public class ChatActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
         // Retrieve auth extra passed from previous activity
         String auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
 
