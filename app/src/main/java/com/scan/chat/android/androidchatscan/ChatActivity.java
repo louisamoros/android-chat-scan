@@ -9,39 +9,36 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+
+import java.io.OutputStreamWriter;
 import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity {
 
+    private LoadMessagesTask mLoadMessagesTask = null;
+    private UserSendTask sendTask;
+    private String auth;
+    private String username;
+    private String allMessages;
+
     // UI references.
     private EditText mMessageText;
     private Button mSendButton;
-    private UserSendTask sendTask;
-    private String username;
-    private String auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +49,10 @@ public class ChatActivity extends Activity {
         auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
         username = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
 
-        // Call method to load messages with EXTRA_LOGIN
+        // Call method to load messages with EXTRA_AUTH
+        onLoadMessages();
 
-        //onLoadMessages();
-
-        //send message button
+        // send message button
         // Set up the login form.
         mMessageText = (EditText) findViewById(R.id.EditText);
         mSendButton = (Button) findViewById(R.id.Button);
@@ -66,9 +62,6 @@ public class ChatActivity extends Activity {
                 onSendMessage();
             }
         });
-
-        onLoadMessages();
-
     }
 
     @Override
@@ -103,38 +96,63 @@ public class ChatActivity extends Activity {
     }
 
 
-    class RequestTask extends AsyncTask<String, String, String> {
+    // Reads an InputStream and converts it to a String.
+    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
+        Reader reader = null;
+        reader = new InputStreamReader(stream, "UTF-8");
+        char[] buffer = new char[len];
+        reader.read(buffer);
+        return new String(buffer);
+    }
+
+    class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
+        InputStream is = null;
+        // Only display the first 500 characters of the retrieved
+        // web page content.
+        int len = 1500;
 
         @Override
-        protected String doInBackground(String... uri) {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response;
-            String responseString = null;
+        protected Boolean doInBackground(String... params) {
             try {
-                response = httpclient.execute(new HttpGet(uri[0]));
-                StatusLine statusLine = response.getStatusLine();
-                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    response.getEntity().writeTo(out);
-                    responseString = out.toString();
-                    out.close();
-                } else {
-                    //Closes the connection.
-                    response.getEntity().getContent().close();
-                    throw new IOException(statusLine.getReasonPhrase());
+                String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=10&offset=20")
+                        .toString();
+                URL imageUrl = new URL(urlString);
+
+                HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
+                conn.setRequestProperty("Authorization", auth);
+                conn.setConnectTimeout(30000);
+                conn.setReadTimeout(30000);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
+
+                int response = conn.getResponseCode();
+
+                if(response == 200) {
+                    is = conn.getInputStream();
+                    // Convert the InputStream into a string
+                    allMessages = readIt(is, len);
+                    return true;
                 }
-            } catch (ClientProtocolException e) {
-                //TODO Handle problems..
-            } catch (IOException e) {
-                //TODO Handle problems..
             }
-            return responseString;
+            catch(IOException e){
+                Toast.makeText(ChatActivity.this, e.getMessage(), LENGTH_LONG).show();
+            }
+            return false;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            //Do anything with response..
+        protected void onPostExecute(final Boolean success) {
+            mLoadMessagesTask = null;
+            //showProgress(false);
+
+            if (success) {
+                // Everything good!
+                TextView messages = (TextView) findViewById(R.id.Messages);
+                messages.setText(allMessages);
+            } else {
+                Toast.makeText(ChatActivity.this, "Something went wrong.", LENGTH_LONG).show();
+            }
         }
     }
 
@@ -145,7 +163,7 @@ public class ChatActivity extends Activity {
         // showSpinner()
 
         // Request message list
-        new RequestTask().execute("http://training.loicortola.com/chat-rest/2.0");
+        new LoadMessagesTask().execute("http://training.loicortola.com/chat-rest/2.0");
 
         // <<<<<<<<
         // If request too long or fail (400)
@@ -267,8 +285,10 @@ public class ChatActivity extends Activity {
         protected void onPostExecute(final Boolean success) {
             sendTask = null;
 
-            if (success)
+            if (success) {
                 Toast.makeText(ChatActivity.this, R.string.sent_success, LENGTH_LONG).show();
+                onLoadMessages();
+            }
             else {
                 Toast.makeText(ChatActivity.this, R.string.sent_failed, LENGTH_LONG).show();
             }
