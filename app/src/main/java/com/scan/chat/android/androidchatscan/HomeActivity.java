@@ -11,6 +11,10 @@ public class HomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        // Retrieve login extra passed from previous activity
+        String login = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
+
     }
 
     @Override
