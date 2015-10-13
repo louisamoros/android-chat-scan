@@ -37,7 +37,10 @@
             android:id="@+id/EditText"
             android:layout_width="fill_parent"
             android:layout_toLeftOf="@id/Button"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="@string/prompt_message"
+            android:inputType="text"
+            >
         </EditText>
 
     </RelativeLayout>

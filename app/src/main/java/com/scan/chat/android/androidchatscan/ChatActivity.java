@@ -1,10 +1,18 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
+import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -13,15 +21,26 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.UUID;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity {
 
     // UI references.
     private EditText mMessageText;
     private Button mSendButton;
+    private UserSendTask sendTask;
+    private String username;
+    private String auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +48,22 @@ public class ChatActivity extends Activity {
         setContentView(R.layout.activity_chat);
 
         // Retrieve auth extra passed from previous activity
-        String auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
+        auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
+        username = getIntent().getStringExtra(MainActivity.EXTRA_LOGIN);
 
         // Call method to load messages with EXTRA_LOGIN
-        onLoadMessages();
+        //onLoadMessages();
+
+        //send message button
+        // Set up the login form.
+        mMessageText = (EditText) findViewById(R.id.EditText);
+        mSendButton = (Button) findViewById(R.id.Button);
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSendMessage();
+            }
+        });
     }
 
     protected void onLoadMessages() {
@@ -89,19 +120,14 @@ public class ChatActivity extends Activity {
 
     }
 
-    protected void onSendMessage() {
-        //TODO: Post message in current discussion
+    private void onSendMessage() {
+        
+        // get message string from editview
+        String message = mMessageText.getText().toString();
 
-        // Send message
-        // >>>>>>>>
-
-        // <<<<<<<<
-        // If request too long or fail (400)
-        // show something went wrong
-
-        // Else request succeed (200)
-        // Load all message onLoadMessages()
-
+        // execute asynchronus task to send message
+        sendTask = new UserSendTask(message);
+        sendTask.execute(message);
     }
 
     protected void showSpinner() {
@@ -110,5 +136,95 @@ public class ChatActivity extends Activity {
 
     protected void hideSpinner() {
         //TODO: hide spinner
+    }
+
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class UserSendTask extends AsyncTask<String, Void, Boolean> {
+
+        private final String message;
+
+        UserSendTask(String message) {
+            this.message = message;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            String message = params[0];
+            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
+            OutputStreamWriter writer = null;
+            BufferedReader reader = null;
+            HttpURLConnection conn = null;
+
+
+            try {
+                //open connection
+                URL imageUrl = new URL(urlString);
+                conn = (HttpURLConnection) imageUrl.openConnection();
+
+                //authentification
+                conn.setRequestProperty("Authorization", auth);
+                //json post type request
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setRequestMethod("POST");
+
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+
+                //generate valid uuid
+                String uuid = UUID.randomUUID().toString();
+
+
+                //Create JSONObject here
+                JSONObject jsonParam = new JSONObject();
+                jsonParam.put("uuid", uuid);
+                jsonParam.put("login", username);
+                jsonParam.put("message", message);
+                conn.setFixedLengthStreamingMode(jsonParam.toString().length());
+                conn.connect();
+
+                //start query
+                writer = new OutputStreamWriter(conn.getOutputStream());
+                writer.write(jsonParam.toString());
+
+                //make sure writer is flushed
+                writer.flush();
+
+                //get response
+                int response = conn.getResponseCode();
+                if(response == 200)
+                    return true;
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try{writer.close();}catch(Exception e){}
+                try{reader.close();}catch(Exception e){}
+                try{conn.disconnect();}catch(Exception e){}
+            }
+
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            sendTask = null;
+
+            if (success)
+                Toast.makeText(ChatActivity.this, R.string.sent_success, LENGTH_LONG).show();
+            else {
+                Toast.makeText(ChatActivity.this, R.string.sent_failed, LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            sendTask = null;
+        }
     }
 }

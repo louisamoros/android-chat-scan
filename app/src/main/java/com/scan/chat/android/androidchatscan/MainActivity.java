@@ -62,6 +62,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
     protected static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     protected static final String EXTRA_AUTH = "ext_auth";
+    protected static final String EXTRA_LOGIN = "ext_login";
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /**
@@ -302,12 +303,15 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
             if (success)
             {
+                String username = nUsernameView.getText().toString();
+
                 // Everything good!
                 Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
 
                 // Declare activity switch intent
                 Intent intent = new Intent(MainActivity.this, ChatActivity.class);
                 intent.putExtra(EXTRA_AUTH, basicAuth);
+                intent.putExtra(EXTRA_LOGIN, username);
 
                 // Start activity
                 startActivity(intent);
