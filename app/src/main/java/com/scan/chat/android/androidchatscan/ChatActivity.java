@@ -35,6 +35,7 @@ public class ChatActivity extends Activity {
 
         // Call method to load messages with EXTRA_LOGIN
         onLoadMessages();
+
     }
 
     @Override
@@ -68,6 +69,42 @@ public class ChatActivity extends Activity {
 
     }
 
+
+    class RequestTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... uri) {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response;
+            String responseString = null;
+            try {
+                response = httpclient.execute(new HttpGet(uri[0]));
+                StatusLine statusLine = response.getStatusLine();
+                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    response.getEntity().writeTo(out);
+                    responseString = out.toString();
+                    out.close();
+                } else {
+                    //Closes the connection.
+                    response.getEntity().getContent().close();
+                    throw new IOException(statusLine.getReasonPhrase());
+                }
+            } catch (ClientProtocolException e) {
+                //TODO Handle problems..
+            } catch (IOException e) {
+                //TODO Handle problems..
+            }
+            return responseString;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //Do anything with response..
+        }
+    }
+
     protected void onLoadMessages() {
         //TODO: Load chat messages.
 
@@ -75,51 +112,16 @@ public class ChatActivity extends Activity {
         // showSpinner()
 
         // Request message list
-        class RequestTask extends AsyncTask<String, String, String> {
+        new RequestTask().execute("http://training.loicortola.com/chat-rest/2.0");
 
-            @Override
-            protected String doInBackground(String... uri) {
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpResponse response;
-                String responseString = null;
-                try {
-                    response = httpclient.execute(new HttpGet(uri[0]));
-                    StatusLine statusLine = response.getStatusLine();
-                    if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        response.getEntity().writeTo(out);
-                        responseString = out.toString();
-                        out.close();
-                    } else {
-                        //Closes the connection.
-                        response.getEntity().getContent().close();
-                        throw new IOException(statusLine.getReasonPhrase());
-                    }
-                } catch (ClientProtocolException e) {
-                    //TODO Handle problems..
-                } catch (IOException e) {
-                    //TODO Handle problems..
-                }
-                return responseString;
-            }
+        // <<<<<<<<
+        // If request too long or fail (400)
+        // hide spinner hideSpinner()
+        // show something went wrong
 
-            @Override
-            protected void onPostExecute(String result) {
-                super.onPostExecute(result);
-                //Do anything with response..
-            }
-            // >>>>>>>>
-
-            // <<<<<<<<
-            // If request too long or fail (400)
-            // hide spinner hideSpinner()
-            // show something went wrong
-
-            // Else request succeed (200)
-            // hide spinner hideSpinner()
-            // show message list
-
-        }
+        // Else request succeed (200)
+        // hide spinner hideSpinner()
+        // show message list
     }
 
     protected void onSendMessage() {
