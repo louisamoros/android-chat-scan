@@ -1,35 +1,30 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity {
+
+    private LoadMessagesTask mLoadMessagesTask = null;
+    private String auth;
+    private String allMessages;
 
     // UI references.
     private EditText mMessageText;
@@ -41,7 +36,7 @@ public class ChatActivity extends Activity {
         setContentView(R.layout.activity_chat);
 
         // Retrieve auth extra passed from previous activity
-        String auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
+        auth = getIntent().getStringExtra(MainActivity.EXTRA_AUTH);
 
         // Call method to load messages with EXTRA_LOGIN
         onLoadMessages();
@@ -80,80 +75,62 @@ public class ChatActivity extends Activity {
     }
 
 
-    class RequestTask extends AsyncTask<String, String, String> {
+    // Reads an InputStream and converts it to a String.
+    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
+        Reader reader = null;
+        reader = new InputStreamReader(stream, "UTF-8");
+        char[] buffer = new char[len];
+        reader.read(buffer);
+        return new String(buffer);
+    }
+
+    class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
+        InputStream is = null;
+        // Only display the first 500 characters of the retrieved
+        // web page content.
+        int len = 1500;
 
         @Override
         protected Boolean doInBackground(String... params) {
+            try {
+                String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=10&offset=20")
+                        .toString();
+                URL imageUrl = new URL(urlString);
 
-            String username = params[0];
-            String password = params[1];
+                HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
+                conn.setRequestProperty("Authorization", auth);
+                conn.setConnectTimeout(30000);
+                conn.setReadTimeout(30000);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
 
-            // Webservice URL
-            String urlString = new StringBuilder(API_BASE_URL + "/connect/").toString();
-            String userp = new StringBuilder(username + ":" + password).toString();
-            basicAuth = "Basic " + Base64.encodeToString(userp.getBytes(), Base64.NO_WRAP);
+                int response = conn.getResponseCode();
 
-            //check connection
-            ConnectivityManager connMgr = (ConnectivityManager)
-                    getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if(networkInfo != null && networkInfo.isConnected()) {
-                // everything is so far
-
-                try {
-
-                    //authentification
-                    URL imageUrl = new URL(urlString);
-                    HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
-                    conn.setRequestProperty("Authorization", basicAuth);
-
-                    conn.setConnectTimeout(30000);
-                    conn.setReadTimeout(30000);
-                    conn.setRequestMethod("GET");
-                    conn.setDoInput(true);
-                    conn.connect();
-
-                    int response = conn.getResponseCode();
-
-                    if(response == 200)
-                        return true;
+                if(response == 200) {
+                    is = conn.getInputStream();
+                    // Convert the InputStream into a string
+                    allMessages = readIt(is, len);
+                    return true;
                 }
-                catch(IOException e){
-                    Toast.makeText(MainActivity.this, e.getMessage(), LENGTH_LONG).show();
-
-                }
-
-            } else {
-                // display error
-                Toast.makeText(MainActivity.this, R.string.no_connection, LENGTH_LONG).show();
             }
-
+            catch(IOException e){
+                Toast.makeText(ChatActivity.this, e.getMessage(), LENGTH_LONG).show();
+            }
             return false;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
+            mLoadMessagesTask = null;
+            //showProgress(false);
 
-            if (success)
-            {
+            if (success) {
                 // Everything good!
-                Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
-
-                // Declare activity switch intent
-                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-                intent.putExtra(EXTRA_AUTH, basicAuth);
-
-                // Start activity
-                startActivity(intent);
-                // If you don't want the current activity to be in the backstack,
-                // uncomment the following line:
-                // finish();
-
+                TextView messages = (TextView) findViewById(R.id.Messages);
+                messages.setText(allMessages);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                Toast.makeText(ChatActivity.this, "Something went wrong.", LENGTH_LONG).show();
             }
         }
     }
@@ -165,7 +142,7 @@ public class ChatActivity extends Activity {
         // showSpinner()
 
         // Request message list
-        new RequestTask().execute("http://training.loicortola.com/chat-rest/2.0");
+        new LoadMessagesTask().execute("http://training.loicortola.com/chat-rest/2.0");
 
         // <<<<<<<<
         // If request too long or fail (400)

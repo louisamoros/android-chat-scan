@@ -14,7 +14,11 @@
         android:layout_marginBottom="8dp" android:visibility="gone" />
 
     <!-- Messages -->
-
+    <TextView
+        android:id="@+id/Messages"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/InnerRelativeLayout" />
 
     <!-- If no messages -->
 
