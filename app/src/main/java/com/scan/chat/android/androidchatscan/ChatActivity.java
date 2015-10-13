@@ -9,6 +9,7 @@ import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -70,9 +71,14 @@ public class ChatActivity extends Activity {
         });
 
         // send message button
-        // Set up the login form.
         mMessageText = (EditText) findViewById(R.id.EditText);
         mSendButton = (Button) findViewById(R.id.Button);
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSendMessage();
+            }
+        });
 
         // List view setup
         listMessage = (ListView) findViewById(R.id.ListMessage);
