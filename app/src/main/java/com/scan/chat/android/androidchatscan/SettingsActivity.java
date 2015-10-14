@@ -2,12 +2,14 @@ package com.scan.chat.android.androidchatscan;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -18,6 +20,7 @@ import android.text.TextUtils;
 
  
 import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -61,6 +64,16 @@ public class SettingsActivity extends PreferenceActivity {
         loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
+    @Override
+    protected boolean isValidFragment(String fragmentName)
+    {
+        ArrayList<Header> target = new ArrayList<>();
+        loadHeadersFromResource(R.xml.pref_headers, target);
+        for (Header h : target) {
+            if (fragmentName.equals(h.fragment)) return true;
+        }
+        return false;
+    }
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -140,32 +153,50 @@ public class SettingsActivity extends PreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class LoginInfoPreferenceFragment extends PreferenceFragment {
+
+        private String username;
+        private String password;
+        EditTextPreference UsernameEditTextPref;
+        EditTextPreference PasswdEditTextPref;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-           // String settings = getArguments().getString("settings");
-           // if ("user".equals(settings))
+
+            SharedPreferences sPrefs = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
+            username = sPrefs.getString("username", null);
+            password = sPrefs.getString("password", null);
+
+            //PreferenceManager.setDefaultValues(this, R.xml.pref_username, false);
+            UsernameEditTextPref = (EditTextPreference)findPreference("name");
+            PasswdEditTextPref = (EditTextPreference)findPreference("pwd");
+
+            UsernameEditTextPref.setText(sPrefs.getString("name", "0"));
+            PasswdEditTextPref.setText(sPrefs.getString("pwd", "0"));
+            //String settings = getArguments().getString("settings");
+           //if ("user".equals(settings))
            // {
-                addPreferencesFromResource(R.xml.pref_username);
+            //UsernameEditTextPref.setDefaultValue(username);
+           // PasswdEditTextPref.setDefaultValue(password);
+
+            addPreferencesFromResource(R.xml.pref_username);
 
                 // Bind the summaries of EditText/List/Dialog/Ringtone preferences
                 // to their values. When their values change, their summaries are
                 // updated to reflect the new value, per the Android Design
                 // guidelines.
-                bindPreferenceSummaryToValue(findPreference("example_text"));
-                bindPreferenceSummaryToValue(findPreference("example_list"));
+             //bindPreferenceSummaryToValue(findPreference("example_text"));
+             //   bindPreferenceSummaryToValue(findPreference("example_list"));
 
             //}
-            //else if ("pwd".equals(settings))
-            //{
-              //  addPreferencesFromResource(R.xml.pref_pwd);
+            //else if ("pwd".equals(settings)) {
+            //     addPreferencesFromResource(R.xml.pref_pwd);
 
-                // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-                // to their values. When their values change, their summaries are
-                // updated to reflect the new value, per the Android Design
-                // guidelines.
-                bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-
+               // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+               // to their values. When their values change, their summaries are
+               // updated to reflect the new value, per the Android Design
+               // guidelines.
+               //bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+           //}
         }
     }
 
