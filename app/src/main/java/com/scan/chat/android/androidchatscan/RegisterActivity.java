@@ -294,7 +294,7 @@ public class RegisterActivity extends Activity{
                 Toast.makeText(RegisterActivity.this, R.string.register_success, LENGTH_LONG).show();
 
                 // Declare activity switch intent
-                Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, ChatActivity.class);
 
                 // save username and password using a shared preference
                 SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
