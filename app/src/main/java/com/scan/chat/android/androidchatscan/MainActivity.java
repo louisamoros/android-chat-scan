@@ -1,33 +1,33 @@
 package com.scan.chat.android.androidchatscan;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.util.Base64;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
+import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.io.IOException;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -35,9 +35,7 @@ import static android.widget.Toast.LENGTH_LONG;
 public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>*/ {
 
     protected static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
-    protected static final String EXTRA_AUTH = "ext_auth";
-    protected static final String EXTRA_LOGIN = "ext_login";
-    public static final String PREFS_NAME = "MyPrefsFile";
+    protected static final String PREFS_NAME = "MyPrefsFile";
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /**
@@ -64,8 +62,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         //first check if there is a user already connected
         //in this case, we can directly go to chat activity
         SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
-        if((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth")))
-        {
+        if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
             // Declare activity switch intent
             Intent intent = new Intent(MainActivity.this, ChatActivity.class);
             // Start activity
@@ -155,8 +152,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         }
 
         // Check for a valid password, if the user entered one.
-        if(TextUtils.isEmpty(password))
-        {
+        if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
@@ -175,8 +171,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(username,password);
-            mAuthTask.execute(username,password);
+            mAuthTask = new UserLoginTask(username, password);
+            mAuthTask.execute(username, password);
         }
     }
 
@@ -250,7 +246,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             ConnectivityManager connMgr = (ConnectivityManager)
                     getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if(networkInfo != null && networkInfo.isConnected()) {
+            if (networkInfo != null && networkInfo.isConnected()) {
                 // everything is so far
 
                 try {
@@ -268,11 +264,10 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
                     int response = conn.getResponseCode();
 
-                    if(response == 200)
+                    if (response == 200)
                         return true;
-                }
-                catch(IOException e){
-                    Toast.makeText(MainActivity.this, e.getMessage(),LENGTH_LONG).show();
+                } catch (IOException e) {
+                    Toast.makeText(MainActivity.this, e.getMessage(), LENGTH_LONG).show();
 
                 }
 
@@ -289,8 +284,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             mAuthTask = null;
             showProgress(false);
 
-            if (success)
-            {
+            if (success) {
                 String username = nUsernameView.getText().toString();
                 String password = mPasswordView.getText().toString();
 

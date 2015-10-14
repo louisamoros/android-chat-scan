@@ -1,10 +1,14 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
+import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,24 +16,27 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.scan.chat.android.androidchatscan.model.Message;
 
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+
 import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity {
@@ -37,10 +44,9 @@ public class ChatActivity extends Activity {
     private UserSendTask sendTask;
     private String auth;
     private String username;
-    private String password;
     private ListView listMessage;
     ArrayList<Message> allMessages;
-
+    private static int RESULT_LOAD_IMAGE = 1;
 
     // UI references.
     private EditText mMessageText;
@@ -55,7 +61,6 @@ public class ChatActivity extends Activity {
         // Retrieve shared preferences content
         SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         username = sPrefs.getString("username", null);
-        password = sPrefs.getString("password", null);
         auth = sPrefs.getString("auth", null);
 
 
@@ -81,6 +86,16 @@ public class ChatActivity extends Activity {
                 onSendMessage();
             }
         });
+
+
+        /*Button buttonLoadImage = (Button) findViewById(R.id.importImgButton);
+        buttonLoadImage.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                openGallery();
+            }
+        });*/
 
         // List view setup
         listMessage = (ListView) findViewById(R.id.ListMessage);
@@ -113,7 +128,38 @@ public class ChatActivity extends Activity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            //ImageView imageView = (ImageView) findViewById(R.id.imgView);
+            //imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+
+        }
+
+
+    }
+
+    private void openGallery()
+    {
+        Intent i = new Intent(
+                Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        startActivityForResult(i, RESULT_LOAD_IMAGE);
+    }
 
 
     class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
