@@ -1,59 +1,33 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
-import android.database.Cursor;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-
 import android.util.Base64;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.view.inputmethod.InputMethodManager;
-
-import android.util.Log;
 import android.widget.Toast;
-
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.content.Intent;
-
 import android.os.Build;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.IOException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -62,6 +36,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
     protected static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     protected static final String EXTRA_AUTH = "ext_auth";
+    protected static final String EXTRA_LOGIN = "ext_login";
+    public static final String PREFS_NAME = "MyPrefsFile";
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /**
@@ -84,6 +60,19 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //first check if there is a user already connected
+        //in this case, we can directly go to chat activity
+        SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
+        if((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth")))
+        {
+            // Declare activity switch intent
+            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+            // Start activity
+            startActivity(intent);
+        }
+
+
         // Set up the login form.
         nUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -302,18 +291,28 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
             if (success)
             {
+                String username = nUsernameView.getText().toString();
+                String password = mPasswordView.getText().toString();
+
                 // Everything good!
                 Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
 
                 // Declare activity switch intent
                 Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-                intent.putExtra(EXTRA_AUTH, basicAuth);
+
+                // save username and password using a shared preference
+                SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = sPrefs.edit();
+                editor.putString("username", username);
+                editor.putString("password", password);
+                editor.putString("auth", basicAuth);
+                editor.commit();
 
                 // Start activity
                 startActivity(intent);
                 // If you don't want the current activity to be in the backstack,
                 // uncomment the following line:
-                // finish();
+                //finish();
 
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
