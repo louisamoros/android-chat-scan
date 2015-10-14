@@ -1,9 +1,12 @@
 <resources>
-    <color name="primary">#FFFFFF</color>
-    <color name="primary_dark">#6C7F91</color>
-    <color name="accent">#6C7F91</color>
-    <color name="light_green">#7ABA34</color>
-    <color name="light_gray">#f8f8f8</color>
-    <color name="dark_green">#5B852D</color>
-    <color name="photo_tint">#7f101010</color>
+    <color name="primary_material_light">#3589ff</color>
+    <color name="primary_dark_material_light">#223be1</color>
+    <color name="accent_material_light">#284cfe</color>
+    <color name="background_material_light">#eaff74</color>
+    <color name="foreground_material_light">#ebee33</color>
+    <color name="black">#000000</color>
+    <color name="statusBarColor">#7e8efd</color>
+    <color name="primary_text_default_material_light">#ded1e048</color>
+    <color name="primary_text_default_material_dark">#a6c2ff</color>
+    <color name="windowBackground">#ecff82</color>
 </resources>
