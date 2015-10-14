@@ -9,6 +9,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -54,7 +55,6 @@ import static android.widget.Toast.LENGTH_LONG;
  */
 public class RegisterActivity extends Activity{
 
-    private static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     protected static final String EXTRA_AUTH = "ext_auth";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -229,7 +229,7 @@ public class RegisterActivity extends Activity{
 
             String username = params[0]; 
             String password = params[1];
-            String urlString = new StringBuilder(API_BASE_URL + "/register/").toString();
+            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/register/").toString();
             OutputStreamWriter writer = null;
             BufferedReader reader = null;
             HttpURLConnection conn = null;
@@ -287,12 +287,22 @@ public class RegisterActivity extends Activity{
 
             if (success)
             {
+                String username = nUsernameView.getText().toString();
+                String password = mPasswordView.getText().toString();
+
                 // Everything good!
                 Toast.makeText(RegisterActivity.this, R.string.register_success, LENGTH_LONG).show();
 
                 // Declare activity switch intent
-                Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
-                intent.putExtra(EXTRA_AUTH, basicAuth);
+                Intent intent = new Intent(RegisterActivity.this, ChatActivity.class);
+
+                // save username and password using a shared preference
+                SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+                SharedPreferences.Editor editor = sPrefs.edit();
+                editor.putString("username", username);
+                editor.putString("password", password);
+                editor.putString("auth", basicAuth);
+                editor.commit();
 
                 // Start activity
                 startActivity(intent);

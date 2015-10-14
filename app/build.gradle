@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.scan.chat.android.androidchatscan"
-        minSdkVersion 22
+        minSdkVersion 19
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
@@ -20,7 +20,7 @@ android {
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:23.0.0'
+    compile 'com.android.support:support-v4:22.0.0'
     compile 'com.google.code.gson:gson:1.7.2'
     compile 'org.apache.commons:commons-io:1.3.2'
     compile 'com.android.support:support-v4:22.0.+'
