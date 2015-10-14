@@ -62,12 +62,12 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         //first check if there is a user already connected
         //in this case, we can directly go to chat activity
         SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
-        if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
-            // Declare activity switch intent
-            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-            // Start activity
-            startActivity(intent);
-        }
+//        if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
+//            // Declare activity switch intent
+//            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+//            // Start activity
+//            startActivity(intent);
+//        }
 
 
         // Set up the login form.
