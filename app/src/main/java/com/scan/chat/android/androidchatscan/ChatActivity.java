@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.content.Intent;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -54,18 +55,21 @@ public class ChatActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        switch (id) {
+            case R.id.action_settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivityForResult(i, SHOW_PREFERENCES);
+                return true;
 
-        if (id == R.id.action_profile) {
-            return true;
-        }
 
-        if (id == R.id.action_log_out) {
-            return true;
+            case R.id.action_log_out:
+                Intent k = new Intent(ChatActivity.this, RegisterActivity.class);
+                startActivity(k);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        else return false;
 
     }
 
