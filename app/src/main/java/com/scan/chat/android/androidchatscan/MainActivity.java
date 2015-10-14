@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -69,6 +70,11 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 //            startActivity(intent);
 //        }
 
+
+        // Title with special font
+        TextView textViewLoginTitle =(TextView)findViewById(R.id.text_view_login_title);
+        Typeface face=Typeface.createFromAsset(getAssets(), "fonts/kaushanscriptregular-font.otf");
+        textViewLoginTitle.setTypeface(face);
 
         // Set up the login form.
         nUsernameView = (AutoCompleteTextView) findViewById(R.id.username);

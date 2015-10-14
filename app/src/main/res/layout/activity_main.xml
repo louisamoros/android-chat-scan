@@ -12,11 +12,20 @@
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginBottom="8dp" android:visibility="gone" />
 
+
     <ScrollView android:id="@+id/login_form" android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <LinearLayout android:id="@+id/username_login_form" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/app_name"
+                android:textSize="50dp"
+                android:id="@+id/text_view_login_title"/>
 
             <AutoCompleteTextView android:id="@+id/username" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_email"
