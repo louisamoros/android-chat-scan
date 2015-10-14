@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 
+ 
 import java.util.List;
 
 
@@ -164,7 +165,7 @@ public class SettingsActivity extends PreferenceActivity {
                 // updated to reflect the new value, per the Android Design
                 // guidelines.
                 bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-            }
+
         }
     }
 

@@ -58,7 +58,7 @@ public class ChatActivity extends Activity {
         switch (id) {
             case R.id.action_settings:
                 Intent i = new Intent(this, SettingsActivity.class);
-                startActivityForResult(i, SHOW_PREFERENCES);
+                startActivity(i);
                 return true;
 
 
