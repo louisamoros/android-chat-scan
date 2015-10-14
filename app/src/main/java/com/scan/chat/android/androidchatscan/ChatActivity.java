@@ -1,15 +1,21 @@
 package com.scan.chat.android.androidchatscan;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,12 +29,14 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.scan.chat.android.androidchatscan.model.Attachment;
 import com.scan.chat.android.androidchatscan.model.Message;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -46,6 +54,7 @@ public class ChatActivity extends Activity {
     private String auth;
     private String username;
     private ListView listMessage;
+    private String encodedImage;
     ArrayList<Message> allMessages;
     private static int RESULT_LOAD_IMAGE = 1;
 
@@ -88,16 +97,6 @@ public class ChatActivity extends Activity {
             }
         });
 
-
-        /*Button buttonLoadImage = (Button) findViewById(R.id.importImgButton);
-        buttonLoadImage.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                openGallery();
-            }
-        });*/
-
         // List view setup
         listMessage = (ListView) findViewById(R.id.ListMessage);
     }
@@ -118,12 +117,43 @@ public class ChatActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         switch (id) {
+            case R.id.import_img_button:
+                //openGalleryAndSend();
+
+                Drawable loul = getResources().getDrawable( R.drawable.ic_launcher);
+                //Drawable loul = getDrawable(R.drawable.loulou);
+                Bitmap imageBitmap = ((BitmapDrawable)loul).getBitmap();
+
+                //get a encode64 image from the bitmap
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+                //make the user confirm he wants to send the picture
+                new AlertDialog.Builder(this)
+                        .setTitle("Sure")
+                        .setMessage("send image ?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // in case of yes, execute asynchronus task to send message
+                                sendTask = new UserSendTask(true);
+                                sendTask.execute("", encodedImage);
+                            }})
+                        .setNegativeButton(android.R.string.no, null).show();
+                return true;
+
             case R.id.action_settings:
-                Intent i = new Intent(this, SettingsActivity.class);
-                startActivity(i);
+                Intent j = new Intent(this, SettingsActivity.class);
+                startActivity(j);
                 return true;
 
             case R.id.action_log_out:
+                //clear user's data to disconnect
+                SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+                SharedPreferences.Editor editor = sPrefs.edit();
+                editor.clear();
                 Intent k = new Intent(ChatActivity.this, MainActivity.class);
                 startActivity(k);
                 return true;
@@ -153,15 +183,32 @@ public class ChatActivity extends Activity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
-            //ImageView imageView = (ImageView) findViewById(R.id.imgView);
-            //imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+            Bitmap imageBitmap = BitmapFactory.decodeFile(picturePath);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+            //make the user confirm he wants to send the picture
+            new AlertDialog.Builder(this)
+                    .setTitle("Title")
+                    .setMessage("Do you really want to whatever?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            // in case of yes, execute asynchronus task to send message
+                            sendTask = new UserSendTask(true);
+                            sendTask.execute(encodedImage);
+                        }})
+                    .setNegativeButton(android.R.string.no, null).show();
 
         }
 
 
     }
 
-    private void openGallery()
+    private void openGalleryAndSend()
     {
         Intent i = new Intent(
                 Intent.ACTION_PICK,
@@ -246,8 +293,8 @@ public class ChatActivity extends Activity {
         String message = mMessageText.getText().toString();
 
         // execute asynchronus task to send message
-        sendTask = new UserSendTask(message);
-        sendTask.execute(message);
+        sendTask = new UserSendTask(false);
+        sendTask.execute(message, null);
     }
 
     protected void showSpinner() {
@@ -263,10 +310,10 @@ public class ChatActivity extends Activity {
      */
     public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
-        private final String message;
+        private boolean img;    //true if image must be attached
 
-        UserSendTask(String message) {
-            this.message = message;
+        UserSendTask(boolean img) {
+            this.img = img;
         }
 
         @Override
@@ -275,11 +322,21 @@ public class ChatActivity extends Activity {
             String message = params[0];
             String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
             OutputStreamWriter writer = null;
-            InputStream is = null;
             BufferedReader reader = null;
             HttpURLConnection conn = null;
 
+            //create message to send
+            Message mess = new Message(UUID.randomUUID().toString(),username,message);
 
+            //add image to message if required
+            if(img)
+            {
+                Attachment att = new Attachment(encodedImage);
+                mess.addAttachment(att);
+                mess.setMessage("image sent by " + username);
+            }
+
+            //http request process
             try {
                 //open connection
                 URL imageUrl = new URL(urlString);
@@ -295,21 +352,39 @@ public class ChatActivity extends Activity {
                 conn.setDoOutput(true);
                 conn.setDoInput(true);
 
-                //generate valid uuid
-                String uuid = UUID.randomUUID().toString();
+                //create gson model
+                Type type = new TypeToken<Message>() {}.getType();
+                String gsonString = new Gson().toJson(mess,type);
 
+                /*
 
                 //Create JSONObject here
                 JSONObject jsonParam = new JSONObject();
                 jsonParam.put("uuid", uuid);
                 jsonParam.put("login", username);
-                jsonParam.put("message", message);
-                conn.setFixedLengthStreamingMode(jsonParam.toString().length());
+
+                if(!img)
+                    jsonParam.put("message", message);
+                else
+                {
+                    //in case of image sending, create new json object to put attachments
+                    JSONObject jsonParamImg = new JSONObject();
+                    jsonParamImg.put("mimeType","image/png");
+                    jsonParamImg.put("data",message);
+                    jsonParam.put("attachments","[" +jsonParamImg.toString() + "]");
+                }
+
+                String j = jsonParam.toString();
+
+                */
+
+                conn.setFixedLengthStreamingMode(gsonString.length());
+                //conn.setChunkedStreamingMode(0);
                 conn.connect();
 
                 //start query
                 writer = new OutputStreamWriter(conn.getOutputStream());
-                writer.write(jsonParam.toString());
+                writer.write(gsonString);
 
                 //make sure writer is flushed
                 writer.flush();
