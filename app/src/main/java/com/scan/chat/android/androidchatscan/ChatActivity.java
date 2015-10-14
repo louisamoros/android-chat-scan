@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.content.Intent;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -116,15 +117,23 @@ public class ChatActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivity(i);
+                return true;
+
+            case R.id.action_log_out:
+                Intent k = new Intent(ChatActivity.this, MainActivity.class);
+                startActivity(k);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
-        if (id == R.id.action_profile) {
-            return true;
-        }
+        //return id == R.id.action_log_out;
 
-        return id == R.id.action_log_out;
 
     }
 
