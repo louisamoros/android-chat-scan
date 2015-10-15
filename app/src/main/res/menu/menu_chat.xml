@@ -1,18 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.scan.chat.android.androidchatscan.ChatActivity">
+
     <item
         android:id="@+id/import_img_button"
+        android:title="action_import_img"
         android:icon="@mipmap/ic_photo_btn"
         android:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:icon="@mipmap/ic_settings"
+        android:showAsAction="always" />
+
     <item
         android:id="@+id/action_log_out"
         android:title="@string/action_log_out"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:icon="@mipmap/ic_log_out"
+        android:showAsAction="always" />
 </menu>

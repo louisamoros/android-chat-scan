@@ -304,9 +304,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
                 // Start activity
                 startActivity(intent);
-                // If you don't want the current activity to be in the backstack,
-                // uncomment the following line:
-                //finish();
+                // we don't want the current activity to be in the backstack,
+                finish();
 
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
