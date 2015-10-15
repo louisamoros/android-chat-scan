@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -62,13 +63,18 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         //first check if there is a user already connected
         //in this case, we can directly go to chat activity
         SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
-        if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
-            // Declare activity switch intent
-            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-            // Start activity
-            startActivity(intent);
-        }
+//        if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
+//            // Declare activity switch intent
+//            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+//            // Start activity
+//            startActivity(intent);
+//        }
 
+
+        // Title with special font
+        TextView textViewLoginTitle =(TextView)findViewById(R.id.text_view_login_title);
+        Typeface face=Typeface.createFromAsset(getAssets(), "fonts/kaushanscriptregular-font.otf");
+        textViewLoginTitle.setTypeface(face);
 
         // Set up the login form.
         nUsernameView = (AutoCompleteTextView) findViewById(R.id.username);

@@ -2,9 +2,10 @@
     <!-- Base application theme. -->
     <style name="ChatCatTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="android:buttonStyle">@style/Button</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
         <item name="android:titleTextStyle">@color/black</item>
-        <item name="android:actionBarItemBackground">@color/primary_material_light</item>
-        <item name="android:windowBackground">@color/background_material_light</item>
         <item name="android:colorBackground">@color/foreground_material_light</item>
         <item name="android:button">@color/primary_material_light</item>
         <item name="android:displayOptions">disableHome</item>
@@ -13,8 +14,17 @@
         <item name="android:gravity" >center</item>
     </style>
 
-    <style name="ChatCat" parent="@style/AppTheme" >
-        <item name="android:windowBackground">@color/windowBackground</item>
+    <!-- ActionBar styles -->
+    <style name="ActionBar"
+        parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/primary_material_light</item>
+    </style>
+
+    <!-- Button styles -->
+    <style name="Button"
+        parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/primary_material_light</item>
+        <item name="android:padding">3dp</item>
     </style>
 
 </resources>
