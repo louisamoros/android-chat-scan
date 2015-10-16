@@ -52,6 +52,6 @@ public class Message {
 
     @Override
     public String toString() {
-        return this.login + ": -- " + this.message + " --";
+        return this.login + ": " + this.message;
     }
 }

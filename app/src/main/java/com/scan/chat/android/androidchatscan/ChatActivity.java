@@ -121,7 +121,6 @@ public class ChatActivity extends Activity {
                 //openGalleryAndSend();
 
                 Drawable loul = getResources().getDrawable( R.drawable.ic_launcher);
-                //Drawable loul = getDrawable(R.drawable.loulou);
                 Bitmap imageBitmap = ((BitmapDrawable)loul).getBitmap();
 
                 //get a encode64 image from the bitmap
@@ -154,8 +153,11 @@ public class ChatActivity extends Activity {
                 SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
                 SharedPreferences.Editor editor = sPrefs.edit();
                 editor.clear();
+                editor.commit();
                 Intent k = new Intent(ChatActivity.this, MainActivity.class);
                 startActivity(k);
+                // we don't want the current activity to be in the backstack,
+                finish();
                 return true;
 
             default:
