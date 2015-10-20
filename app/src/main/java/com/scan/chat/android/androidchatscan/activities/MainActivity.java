@@ -1,5 +1,6 @@
 package com.scan.chat.android.androidchatscan.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -32,15 +33,15 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
      */
     private UserLoginTask mAuthTask = null;
 
-    public static Activity la;
+    public static Activity mLoginActivity;
 
     // UI references.
     public static EditText mPasswordView;
+    private AutoCompleteTextView mUsernameView;
     public static View mProgressView;
     public static View mLoginFormView;
-    private AutoCompleteTextView nUsernameView;
-    private Button mUsernameSignInButton;
-    private Button mSignUpButton;
+    private Button mSignInButton;
+    private Button mRegisterButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +49,10 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        la = this;
+        mLoginActivity = this;
 
-        //first check if there is a user already connected
-        //in this case, we can directly go to chat activity
+        // First check if there is a user already connected
+        // in this case, we can directly go to chat activity
         SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
         if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
             // Declare activity switch intent
@@ -60,46 +61,49 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             startActivity(intent);
         }
 
-
         // Title with special font
         TextView textViewLoginTitle =(TextView)findViewById(R.id.text_view_login_title);
         Typeface face=Typeface.createFromAsset(getAssets(), "fonts/kaushanscriptregular-font.otf");
         textViewLoginTitle.setTypeface(face);
 
+        // Hide action bar
+        ActionBar actionBar = mLoginActivity.getActionBar();
+        actionBar.hide();
+
         // Set up the login form.
-        nUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
+        mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(nUsernameView, InputMethodManager.SHOW_IMPLICIT);
+        imm.showSoftInput(mUsernameView, InputMethodManager.SHOW_IMPLICIT);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+            if (id == R.id.username || id == EditorInfo.IME_NULL) {
+                attemptLogin();
+                return true;
+            }
+            return false;
             }
         });
 
-        //sign in button
-        mUsernameSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mUsernameSignInButton.setOnClickListener(new OnClickListener() {
+        // Sign in button
+        mSignInButton = (Button) findViewById(R.id.sign_in_button);
+        mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
-        //sign up button
-        mSignUpButton = (Button) findViewById(R.id.sign_up_button);
-        mSignUpButton.setOnClickListener(new OnClickListener() {
+
+        // Register button
+        mRegisterButton = (Button) findViewById(R.id.register_button);
+        mRegisterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //go to resister form
+                // Go to resister form
                 // Declare activity switch intent
                 Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-
                 // Start activity
                 startActivity(intent);
             }
@@ -108,8 +112,6 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
-
-    //private void populateAutoComplete() {getLoaderManager().initLoader(0, null, this);}
 
     @Override
     protected void onPause() {
@@ -131,11 +133,11 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         }
 
         // Reset errors.
-        nUsernameView.setError(null);
+        mUsernameView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = nUsernameView.getText().toString();
+        String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -143,8 +145,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
         // Check for a valid username
         if (TextUtils.isEmpty(username)) {
-            nUsernameView.setError(getString(R.string.error_field_required));
-            focusView = nUsernameView;
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
             cancel = true;
         }
 

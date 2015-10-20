@@ -128,7 +128,7 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
             mContext.startActivity(intent);
             // we don't want the current activity to be in the backstack,
             try{
-                RegisterActivity.ra.finish();
+                RegisterActivity.mRegisterActivity.finish();
             } catch (Exception e) {
             }
 

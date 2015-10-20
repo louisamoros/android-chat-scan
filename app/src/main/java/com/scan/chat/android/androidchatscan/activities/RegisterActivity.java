@@ -1,6 +1,8 @@
 package com.scan.chat.android.androidchatscan.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -24,12 +26,12 @@ public class RegisterActivity extends Activity{
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserRegisterTask mAuthTask = null;
-    public static Activity ra;
+    public static Activity mRegisterActivity;
 
     // UI references.
     public static View mProgressView;
     public static View mLoginFormView;
-    private EditText nUsernameView;
+    private EditText mUsernameView;
     private EditText mPasswordView;
     private EditText mPasswordConfirmView;
     private Button mRegisterButton;
@@ -39,27 +41,36 @@ public class RegisterActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        ra = this;
+        mRegisterActivity = this;
+
+        // Title with special font
+        TextView textViewLoginTitle =(TextView)findViewById(R.id.text_view_register_title);
+        Typeface face=Typeface.createFromAsset(getAssets(), "fonts/kaushanscriptregular-font.otf");
+        textViewLoginTitle.setTypeface(face);
+
+        // Hide action bar
+        ActionBar actionBar = mRegisterActivity.getActionBar();
+        actionBar.hide();
 
         // Set up the register form.
-        nUsernameView = (EditText) findViewById(R.id.email);
+        mUsernameView = (EditText) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordConfirmView = (EditText) findViewById(R.id.passwordConfirm);
+        mPasswordConfirmView = (EditText) findViewById(R.id.password_confirmation);
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptRegister();
-                    return true;
-                }
-                return false;
+            if (id == R.id.username || id == EditorInfo.IME_NULL) {
+                attemptRegister();
+                return true;
+            }
+            return false;
             }
         });
 
-        mRegisterButton = (Button) findViewById(R.id.email_register_button);
+        mRegisterButton = (Button) findViewById(R.id.register_button);
         mRegisterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,12 +91,12 @@ public class RegisterActivity extends Activity{
         }
 
         // Reset errors.
-        nUsernameView.setError(null);
+        mUsernameView.setError(null);
         mPasswordView.setError(null);
         mPasswordConfirmView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = nUsernameView.getText().toString();
+        String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
         String passwordConfirm = mPasswordConfirmView.getText().toString();
 
@@ -94,8 +105,8 @@ public class RegisterActivity extends Activity{
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(username)) {
-            nUsernameView.setError(getString(R.string.error_field_required));
-            focusView = nUsernameView;
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
             cancel = true;
         }
 

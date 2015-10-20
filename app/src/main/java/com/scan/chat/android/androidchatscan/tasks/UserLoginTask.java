@@ -124,7 +124,7 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
             mContext.startActivity(intent);
             // we don't want the current activity to be in the backstack,
             //MainActivity.la.finish();
-            MainActivity.la.finish();
+            MainActivity.mLoginActivity.finish();
 
         } else {
             MainActivity.mPasswordView.setError(mContext.getString(R.string.error_incorrect_password));

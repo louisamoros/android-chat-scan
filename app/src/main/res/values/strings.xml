@@ -9,25 +9,21 @@
     <string name="title_activity_login">Sign In</string>
     <string name="login_success">Logged</string>
     <string name="login_error">Login failed.</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign In</string>
-    <string name="action_sign_in_short">Sign In</string>
-    <string name="action_sign_up">Register</string>
-    <string name="error_invalid_email">This email address is invalid.</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_in_button">Sign In</string>
+    <string name="register_button">Register</string>
+    <string name="error_invalid_username">This email address is invalid.</string>
     <string name="error_invalid_password">This password is too short.</string>
     <string name="error_incorrect_password">This password is incorrect.</string>
     <string name="error_field_required">This field is required.</string>
-    <string name="permission_rationale">Contacts permissions are needed for providing email completions.
-    </string>
     <string name="no_connection">No network connection available.</string>
 
     <!-- Strings related to register -->
     <string name="title_activity_register">Register</string>
     <string name="register_success">Successfully registered.</string>
     <string name="register_error">User already exists.</string>
-    <string name="prompt_password_confirm">Confirm your password.</string>
-    <string name="action_register">Register</string>
+    <string name="password_confirmation">Confirm your password.</string>
     <string name="error_no_match">Passwords don\'t match.</string>
 
     <!-- Strings related to chat -->
