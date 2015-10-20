@@ -3,18 +3,11 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.scan.chat.android.androidchatscan.SettingsActivity$LoginInfoPreferenceFragment"
+        android:fragment="com.scan.chat.android.androidchatscan.activities.SettingsActivity$LoginInfoPreferenceFragment"
         android:title="@string/pref_header_login"
         android:summary="Set username and password">
         <extra android:name="settings" android:value="user" ></extra>
         <intent android:action="android.intent.action.EDIT"></intent>
     </header>
-
-    <!--<header
-        android:fragment="com.scan.chat.android.androidchatscan.SettingsActivity$LoginInfoPreferenceFragment"
-        android:title="@string/pref_header_login_password"
-        android:summary="Change Password">
-    <extra android:name="settings" android:value="pwd" ></extra>
-    </header> -->
 
 </preference-headers>

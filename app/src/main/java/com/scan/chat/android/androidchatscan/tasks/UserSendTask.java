@@ -66,7 +66,6 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
         {
             Attachment att = new Attachment(encodedImage);
             mess.addAttachment(att);
-            mess.setMessage("image sent by " + username);
         }
 
         //http request process

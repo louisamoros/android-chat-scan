@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.InputType;
 import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +38,7 @@ public class ChatActivity extends Activity {
     private static int RESULT_LOAD_IMAGE = 1;
     private UserSendTask sendTask;
     private LoadMessagesTask loadMessagesTask;
+    private String message;
     private String encodedImage;
 
 
@@ -107,19 +109,36 @@ public class ChatActivity extends Activity {
                 imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
 
-                //make the user confirm he wants to send the picture
-                new AlertDialog.Builder(this)
-                        .setTitle("Sure")
-                        .setMessage("send image ?")
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                message = "";
 
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                // in case of yes, execute asynchronus task to send message
-                                sendTask = new UserSendTask(true, ChatActivity.this);
-                                sendTask.execute("", encodedImage);
-                            }})
-                        .setNegativeButton(android.R.string.no, null).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Send an image");
+
+                // Set up the input
+                final EditText input = new EditText(this);
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+                builder.setMessage("add a message: ");
+
+                // Set up the buttons
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        message = input.getText().toString();
+                        sendTask = new UserSendTask(true, ChatActivity.this);
+                        sendTask.execute(message, encodedImage);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+
                 return true;
 
             case R.id.action_settings:
@@ -170,19 +189,37 @@ public class ChatActivity extends Activity {
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
 
-            //make the user confirm he wants to send the picture
-            new AlertDialog.Builder(this)
-                    .setTitle("Title")
-                    .setMessage("Do you really want to whatever?")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            //make the user confirm he wants to send the picture, and make him add a message
 
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            // in case of yes, execute asynchronus task to send message
-                            sendTask = new UserSendTask(true, ChatActivity.this);
-                            sendTask.execute("", encodedImage);
-                        }})
-                    .setNegativeButton(android.R.string.no, null).show();
+            message = "";
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Send an image");
+
+            // Set up the input
+            final EditText input = new EditText(this);
+            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+            builder.setMessage("add a message: ");
+
+            // Set up the buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    message = input.getText().toString();
+                    sendTask = new UserSendTask(true, ChatActivity.this);
+                    sendTask.execute(message, encodedImage);
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
 
         }
 
