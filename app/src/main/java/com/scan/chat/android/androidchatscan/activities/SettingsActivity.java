@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Activities;
+package com.scan.chat.android.androidchatscan.activities;
 
 import android.annotation.TargetApi;
 import android.content.Context;

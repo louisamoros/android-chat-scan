@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Tasks;
+package com.scan.chat.android.androidchatscan.tasks;
 
 /**
  * Created by guillaumenostrenoff on 15/10/15.
@@ -11,7 +11,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import com.scan.chat.android.androidchatscan.Activities.MainActivity;
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.model.Attachment;
 import com.scan.chat.android.androidchatscan.model.Message;

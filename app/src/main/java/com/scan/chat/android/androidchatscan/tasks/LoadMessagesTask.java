@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Tasks;
+package com.scan.chat.android.androidchatscan.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,8 +7,8 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.scan.chat.android.androidchatscan.Activities.ChatActivity;
-import com.scan.chat.android.androidchatscan.Activities.MainActivity;
+import com.scan.chat.android.androidchatscan.activities.ChatActivity;
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Message;
 
 import org.apache.commons.io.IOUtils;

@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Activities;
+package com.scan.chat.android.androidchatscan.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,8 +24,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.Tasks.LoadMessagesTask;
-import com.scan.chat.android.androidchatscan.Tasks.UserSendTask;
+import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
+import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
 

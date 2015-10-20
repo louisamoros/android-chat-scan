@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Tasks;
+package com.scan.chat.android.androidchatscan.tasks;
 
 /**
  * Created by guillaumenostrenoff on 16/10/15.
@@ -10,38 +10,36 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
-import com.scan.chat.android.androidchatscan.Activities.ChatActivity;
-import com.scan.chat.android.androidchatscan.Activities.MainActivity;
-import com.scan.chat.android.androidchatscan.Activities.RegisterActivity;
+import com.scan.chat.android.androidchatscan.activities.ChatActivity;
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.R;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.OutputStreamWriter;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 /**
- * Represents an asynchronous registration task used to authenticate
+ * Represents an asynchronous login/registration task used to authenticate
  * the user.
  */
-public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
+public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
     private Context mContext;
     private String username;
     private String password;
     private String basicAuth;
 
-    public UserRegisterTask(Context context) {
+    public UserLoginTask(Context context) {
         this.mContext = context;
     }
 
@@ -55,66 +53,56 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
 
         username = params[0];
         password = params[1];
-        String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/register/").toString();
-        OutputStreamWriter writer = null;
-        BufferedReader reader = null;
-        HttpURLConnection conn = null;
 
+        // Webservice URL
+        String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/connect/").toString();
         String userp = new StringBuilder(username + ":" + password).toString();
-
-        //just in case of resistration success, extra to pass to chatActivity
         basicAuth = "Basic " + Base64.encodeToString(userp.getBytes(), Base64.NO_WRAP);
 
-        try {
-            URL imageUrl = new URL(urlString);
-            conn = (HttpURLConnection) imageUrl.openConnection();
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
+        //check connection
+        ConnectivityManager connMgr = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // everything is so far
 
-            //Create JSONObject here
-            JSONObject jsonParam = new JSONObject();
-            jsonParam.put("login", username);
-            jsonParam.put("password", password);
-            conn.setFixedLengthStreamingMode(jsonParam.toString().length());
-            conn.connect();
+            try {
 
-            //start query
-            writer = new OutputStreamWriter(conn.getOutputStream());
-            writer.write(jsonParam.toString());
+                //authentification
+                URL imageUrl = new URL(urlString);
+                HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
+                conn.setRequestProperty("Authorization", basicAuth);
 
-            //make sure writer is flushed
-            writer.flush();
+                conn.setConnectTimeout(30000);
+                conn.setReadTimeout(30000);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
 
-            //get response
-            int response = conn.getResponseCode();
-            if(response == 200)
-                return true;
+                int response = conn.getResponseCode();
 
+                if (response == 200)
+                    return true;
+            } catch (IOException e) {
+                Toast.makeText(mContext, e.getMessage(), LENGTH_LONG).show();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try{writer.close();}catch(Exception e){}
-            try{reader.close();}catch(Exception e){}
-            try{conn.disconnect();}catch(Exception e){}
+            }
+
+        } else {
+            // display error
+            Toast.makeText(mContext, R.string.no_connection, LENGTH_LONG).show();
         }
 
         return false;
-
     }
 
     @Override
     protected void onPostExecute(final Boolean success) {
         showProgress(false);
 
-        if (success)
-        {
+        if (success) {
 
             // Everything good!
-            Toast.makeText(mContext, R.string.register_success, LENGTH_LONG).show();
+            Toast.makeText(mContext, R.string.login_success, LENGTH_LONG).show();
 
             // Declare activity switch intent
             Intent intent = new Intent(mContext, ChatActivity.class);
@@ -130,15 +118,12 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
             // Start activity
             mContext.startActivity(intent);
             // we don't want the current activity to be in the backstack,
-            try{
-                RegisterActivity.ra.finish();
-            } catch (Exception e) {
-                int a = 3;
-            }
-
+            //MainActivity.la.finish();
+            MainActivity.la.finish();
 
         } else {
-            Toast.makeText(mContext, R.string.register_error, LENGTH_LONG).show();
+            MainActivity.mPasswordView.setError(mContext.getString(R.string.error_incorrect_password));
+            MainActivity.mPasswordView.requestFocus();
         }
     }
 
@@ -152,35 +137,34 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = mContext.getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            RegisterActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            RegisterActivity.mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+            MainActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            MainActivity.mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    RegisterActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    MainActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
-            RegisterActivity.mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            RegisterActivity.mProgressView.animate().setDuration(shortAnimTime).alpha(
+            MainActivity.mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            MainActivity.mProgressView.animate().setDuration(shortAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    RegisterActivity.mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                    MainActivity.mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
                 }
             });
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
-            RegisterActivity.mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            RegisterActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            MainActivity.mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            MainActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 }
