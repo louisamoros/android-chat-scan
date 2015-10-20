@@ -1,18 +1,18 @@
-package com.scan.chat.android.androidchatscan.Tasks;
+package com.scan.chat.android.androidchatscan.tasks;
 
 /**
  * Created by guillaumenostrenoff on 15/10/15.
  */
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import com.scan.chat.android.androidchatscan.Activities.MainActivity;
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Attachment;
 import com.scan.chat.android.androidchatscan.model.Message;
 
@@ -31,6 +31,7 @@ import static android.widget.Toast.LENGTH_LONG;
 public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
     private boolean img;    //true if image must be attached
+    private String username;
     private String auth;
     private Context mContext;
     private LoadMessagesTask loadUserTask;
@@ -45,14 +46,17 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
     protected Boolean doInBackground(String... params) {
 
         String message = params[0];
-        String username = params[1];
-        auth = params[2];
-        String encodedImage = params[3];
+        String encodedImage = params[1];
 
         String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
         OutputStreamWriter writer = null;
         BufferedReader reader = null;
         HttpURLConnection conn = null;
+
+        //get user info from sharedPreferences
+        SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        username = sPrefs.getString("username", null);
+        auth = sPrefs.getString("auth", null);
 
         //create message to send
         Message mess = new Message(UUID.randomUUID().toString(),username,message);
@@ -122,7 +126,7 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
             Toast.makeText(mContext, R.string.sent_success, LENGTH_LONG).show();
             //load messages if success
             loadUserTask = new LoadMessagesTask(mContext);
-            loadUserTask.execute(auth);
+            loadUserTask.execute();
         }
         else {
             Toast.makeText(mContext, R.string.sent_failed, LENGTH_LONG).show();

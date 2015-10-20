@@ -1,14 +1,15 @@
-package com.scan.chat.android.androidchatscan.Tasks;
+package com.scan.chat.android.androidchatscan.tasks;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.scan.chat.android.androidchatscan.Activities.ChatActivity;
-import com.scan.chat.android.androidchatscan.Activities.MainActivity;
+import com.scan.chat.android.androidchatscan.activities.ChatActivity;
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Message;
 
 import org.apache.commons.io.IOUtils;
@@ -33,7 +34,9 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
 
-        String auth = params[0];
+        //get user info from sharedPreferences
+        SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        String auth = sPrefs.getString("auth", null);
 
         try {
             String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=10&offset=20")

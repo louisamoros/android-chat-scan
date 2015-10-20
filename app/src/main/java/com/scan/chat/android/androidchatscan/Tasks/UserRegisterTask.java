@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Tasks;
+package com.scan.chat.android.androidchatscan.tasks;
 
 /**
  * Created by guillaumenostrenoff on 16/10/15.
@@ -12,19 +12,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
-import com.scan.chat.android.androidchatscan.Activities.ChatActivity;
-import com.scan.chat.android.androidchatscan.Activities.MainActivity;
-import com.scan.chat.android.androidchatscan.Activities.RegisterActivity;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.scan.chat.android.androidchatscan.R;
-
-import org.json.JSONObject;
+import com.scan.chat.android.androidchatscan.activities.ChatActivity;
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
+import com.scan.chat.android.androidchatscan.activities.RegisterActivity;
+import com.scan.chat.android.androidchatscan.model.User;
 
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -39,7 +40,7 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
     private Context mContext;
     private String username;
     private String password;
-    private String basicAuth;
+    private User newUser;
 
     public UserRegisterTask(Context context) {
         this.mContext = context;
@@ -60,10 +61,8 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
         BufferedReader reader = null;
         HttpURLConnection conn = null;
 
-        String userp = new StringBuilder(username + ":" + password).toString();
-
-        //just in case of resistration success, extra to pass to chatActivity
-        basicAuth = "Basic " + Base64.encodeToString(userp.getBytes(), Base64.NO_WRAP);
+        //instantiate new user
+        newUser = new User(username, password);
 
         try {
             URL imageUrl = new URL(urlString);
@@ -74,16 +73,13 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
             conn.setDoOutput(true);
             conn.setDoInput(true);
 
-            //Create JSONObject here
-            JSONObject jsonParam = new JSONObject();
-            jsonParam.put("login", username);
-            jsonParam.put("password", password);
-            conn.setFixedLengthStreamingMode(jsonParam.toString().length());
-            conn.connect();
+            //create gson model
+            Type type = new TypeToken<User>() {}.getType();
+            String gsonString = new Gson().toJson(newUser,type);
 
             //start query
             writer = new OutputStreamWriter(conn.getOutputStream());
-            writer.write(jsonParam.toString());
+            writer.write(gsonString);
 
             //make sure writer is flushed
             writer.flush();
@@ -108,6 +104,7 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
+        //stop showing loading animation
         showProgress(false);
 
         if (success)
@@ -124,7 +121,7 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
             SharedPreferences.Editor editor = sPrefs.edit();
             editor.putString("username", username);
             editor.putString("password", password);
-            editor.putString("auth", basicAuth);
+            editor.putString("auth", newUser.getEncodedBase64());
             editor.commit();
 
             // Start activity
@@ -133,13 +130,15 @@ public class UserRegisterTask extends AsyncTask<String, Void, Boolean> {
             try{
                 RegisterActivity.ra.finish();
             } catch (Exception e) {
-                int a = 3;
             }
 
 
         } else {
             Toast.makeText(mContext, R.string.register_error, LENGTH_LONG).show();
         }
+
+        //make sure the user object is no longer referenced
+        newUser = null;
     }
 
     @Override

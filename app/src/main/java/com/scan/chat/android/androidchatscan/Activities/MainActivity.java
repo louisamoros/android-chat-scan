@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Activities;
+package com.scan.chat.android.androidchatscan.activities;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,7 +19,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.Tasks.UserLoginTask;
+import com.scan.chat.android.androidchatscan.tasks.UserLoginTask;
 
 
 public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>*/ {

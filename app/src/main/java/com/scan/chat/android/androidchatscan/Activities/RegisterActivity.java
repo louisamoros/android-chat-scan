@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Activities;
+package com.scan.chat.android.androidchatscan.activities;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -13,7 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.Tasks.UserRegisterTask;
+import com.scan.chat.android.androidchatscan.tasks.UserRegisterTask;
 
 /**
  * A login screen that offers login via username/password.

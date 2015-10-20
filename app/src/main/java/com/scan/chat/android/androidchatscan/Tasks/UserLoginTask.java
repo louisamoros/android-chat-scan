@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Tasks;
+package com.scan.chat.android.androidchatscan.tasks;
 
 /**
  * Created by guillaumenostrenoff on 16/10/15.
@@ -14,13 +14,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
-import com.scan.chat.android.androidchatscan.Activities.ChatActivity;
-import com.scan.chat.android.androidchatscan.Activities.MainActivity;
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.activities.ChatActivity;
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
+import com.scan.chat.android.androidchatscan.model.User;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -38,6 +38,7 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
     private String username;
     private String password;
     private String basicAuth;
+    private User user;
 
     public UserLoginTask(Context context) {
         this.mContext = context;
@@ -56,14 +57,16 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
         // Webservice URL
         String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/connect/").toString();
-        String userp = new StringBuilder(username + ":" + password).toString();
-        basicAuth = "Basic " + Base64.encodeToString(userp.getBytes(), Base64.NO_WRAP);
+
+        //instantiate user and get auth
+        user = new User(username,password);
+        basicAuth = user.getEncodedBase64();
 
         //check connection
         ConnectivityManager connMgr = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            // everything is so far
+            // everything is good so far
 
             try {
 
@@ -97,7 +100,9 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
+        //stop showing loading animation and make sure the user object is no longer referenced
         showProgress(false);
+        user = null;
 
         if (success) {
 

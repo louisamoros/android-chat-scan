@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.Activities;
+package com.scan.chat.android.androidchatscan.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,8 +24,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.Tasks.LoadMessagesTask;
-import com.scan.chat.android.androidchatscan.Tasks.UserSendTask;
+import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
+import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
 
@@ -37,8 +37,6 @@ public class ChatActivity extends Activity {
     private static int RESULT_LOAD_IMAGE = 1;
     private UserSendTask sendTask;
     private LoadMessagesTask loadMessagesTask;
-    private String auth;
-    private String username;
     private String encodedImage;
 
 
@@ -52,18 +50,13 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Retrieve shared preferences content
-        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        username = sPrefs.getString("username", null);
-        auth = sPrefs.getString("auth", null);
-
         // List view setup
         listMessage = (ListView) findViewById(R.id.ListMessage);
 
 
         // Call method to load messages with EXTRA_AUTH
         loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
-        loadMessagesTask.execute(auth);
+        loadMessagesTask.execute();
 
         //get the "pull to refresh" view
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
@@ -72,7 +65,7 @@ public class ChatActivity extends Activity {
             @Override
             public void onRefresh() {
                 loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
-                loadMessagesTask.execute(auth);
+                loadMessagesTask.execute();
             }
         });
 
@@ -124,7 +117,7 @@ public class ChatActivity extends Activity {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 // in case of yes, execute asynchronus task to send message
                                 sendTask = new UserSendTask(true, ChatActivity.this);
-                                sendTask.execute("", username, auth, encodedImage);
+                                sendTask.execute("", encodedImage);
                             }})
                         .setNegativeButton(android.R.string.no, null).show();
                 return true;
@@ -187,7 +180,7 @@ public class ChatActivity extends Activity {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             // in case of yes, execute asynchronus task to send message
                             sendTask = new UserSendTask(true, ChatActivity.this);
-                            sendTask.execute("", username, auth, encodedImage);
+                            sendTask.execute("", encodedImage);
                         }})
                     .setNegativeButton(android.R.string.no, null).show();
 
@@ -221,7 +214,7 @@ public class ChatActivity extends Activity {
 
         // execute asynchronus task to send message
         sendTask = new UserSendTask(false, ChatActivity.this);
-        sendTask.execute(message, username, auth, null);
+        sendTask.execute(message, null);
     }
 
     protected void showSpinner() {
