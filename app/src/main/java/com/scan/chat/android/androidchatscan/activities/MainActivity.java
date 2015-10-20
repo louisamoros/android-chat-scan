@@ -41,7 +41,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
     public static View mProgressView;
     public static View mLoginFormView;
     private Button mSignInButton;
-    private Button mRegisterButton;
+    private TextView mNoAccountLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,8 +97,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         });
 
         // Register button
-        mRegisterButton = (Button) findViewById(R.id.register_button);
-        mRegisterButton.setOnClickListener(new OnClickListener() {
+        mNoAccountLink = (TextView) findViewById(R.id.no_account_link);
+        mNoAccountLink.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Go to resister form
