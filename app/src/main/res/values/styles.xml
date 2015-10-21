@@ -8,6 +8,8 @@
         <item name="android:colorBackground">@color/foreground_material_light</item>
         <item name="android:displayOptions">disableHome</item>
         <item name="android:gravity">center</item>
+        <item name="android:textColorHint">@color/gray_light</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <!-- ActionBar styles -->

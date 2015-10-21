@@ -1,6 +1,8 @@
 <resources>
     <color name="action_bar_background">#ac2325</color>
     <color name="black">#000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="gray_light">#bfbfbf</color>
     <color name="window_background">#e2de595c</color>
     <color name="foreground_material_light">#e2cfb9ba</color>
 </resources>
