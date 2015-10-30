@@ -3,14 +3,15 @@ package com.scan.chat.android.androidchatscan.tasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Message;
+import com.scan.chat.android.androidchatscan.model.MessageAdapter;
 
 import org.apache.commons.io.IOUtils;
 
@@ -70,7 +71,7 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
     protected void onPostExecute(final Boolean success) {
         if (success) {
             // Set the adapter
-            ArrayAdapter<Message> adapter = new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1,allMessages);
+            MessageAdapter adapter = new MessageAdapter(mContext, R.layout.message_row, allMessages);
             ChatActivity.listMessage.setAdapter(adapter);
             // Stop the animation after all the messages are fully loaded
             ChatActivity.mSwipeRefreshLayout.setRefreshing(false);

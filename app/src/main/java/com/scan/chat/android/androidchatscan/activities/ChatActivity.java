@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.scan.chat.android.androidchatscan.R;
@@ -29,7 +30,7 @@ import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
-
+import java.nio.InvalidMarkException;
 
 
 public class ChatActivity extends Activity {
@@ -44,7 +45,7 @@ public class ChatActivity extends Activity {
 
     // UI references.
     private EditText mMessageText;
-    private Button mSendButton;
+    private ImageButton mSendButton;
     public static SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
@@ -73,7 +74,7 @@ public class ChatActivity extends Activity {
 
         // send message button
         mMessageText = (EditText) findViewById(R.id.EditText);
-        mSendButton = (Button) findViewById(R.id.Button);
+        mSendButton = (ImageButton) findViewById(R.id.Button);
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
