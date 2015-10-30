@@ -111,14 +111,14 @@ public class RegisterActivity extends Activity{
         }
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        if (!TextUtils.isEmpty(passwordConfirm) && !isPasswordValid(passwordConfirm)) {
-            mPasswordConfirmView.setError(getString(R.string.error_invalid_password));
+        if (TextUtils.isEmpty(passwordConfirm)) {
+            mPasswordConfirmView.setError(getString(R.string.error_field_required));
             focusView = mPasswordConfirmView;
             cancel = true;
         }
@@ -143,10 +143,6 @@ public class RegisterActivity extends Activity{
             mAuthTask = new UserRegisterTask(RegisterActivity.this);
             mAuthTask.execute(username, password);
         }
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() > 4;
     }
 }
 
