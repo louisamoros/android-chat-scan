@@ -46,7 +46,8 @@
                 android:inputType="text"
                 android:padding="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/input_text"                android:hint="@string/username"
+                android:background="@drawable/input_text"
+                android:hint="@string/username"
                 android:maxLines="1"
                 android:singleLine="true" />
 
@@ -57,7 +58,8 @@
                 android:inputType="textPassword"
                 android:padding="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/input_text"                android:hint="@string/password"
+                android:background="@drawable/input_text"
+                android:hint="@string/password"
                 android:maxLines="1"
                 android:singleLine="true" />
 
