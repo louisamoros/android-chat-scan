@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.view.Gravity;
@@ -55,12 +56,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             holder.message = (TextView) row.findViewById(R.id.message_row);
             LinearLayout messageRowContainer = (LinearLayout) row.findViewById(R.id.message_row_container);
 
-            ShapeDrawable shape = row.find(R.id.shape_bubble);
-            GradientDrawable bgShape = (GradientDrawable)shape.getBackground();
-            bgShape.setColor(Color.BLACK);
-
             if(currentUsername == message.getLogin().toString()) {
-//            if ((position & 1) == 0 ) {
                 messageRowContainer.setGravity(Gravity.RIGHT);
             } else {
                 messageRowContainer.setGravity(Gravity.LEFT);
