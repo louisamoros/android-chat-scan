@@ -44,7 +44,7 @@ public class ChatActivity extends Activity {
 
 
     // UI references.
-    private EditText mMessageText;
+    public static EditText mMessageText;
     private ImageButton mSendButton;
     public static SwipeRefreshLayout mSwipeRefreshLayout;
 

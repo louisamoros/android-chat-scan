@@ -7,11 +7,13 @@ package com.scan.chat.android.androidchatscan.tasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Attachment;
 import com.scan.chat.android.androidchatscan.model.Message;
@@ -122,7 +124,9 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
         //sendTask = null;
 
         if (success) {
+            //display success message and clear text input field
             Toast.makeText(mContext, R.string.sent_success, LENGTH_LONG).show();
+            ChatActivity.mMessageText.setText("");
             //load messages if success
             loadUserTask = new LoadMessagesTask(mContext);
             loadUserTask.execute();
