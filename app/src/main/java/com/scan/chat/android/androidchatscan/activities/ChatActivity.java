@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -109,9 +107,9 @@ public class ChatActivity extends Activity {
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.import_img_button:
-                //openGalleryAndSend();
+                openGalleryAndSend();
 
-                Drawable loul = getResources().getDrawable( R.drawable.ic_launcher);
+                /*Drawable loul = getResources().getDrawable( R.drawable.ic_launcher);
                 Bitmap imageBitmap = ((BitmapDrawable)loul).getBitmap();
 
                 //get a encode64 image from the bitmap
@@ -147,7 +145,7 @@ public class ChatActivity extends Activity {
                     }
                 });
 
-                builder.show();
+                builder.show();*/
 
                 return true;
 
