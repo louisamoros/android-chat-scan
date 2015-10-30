@@ -56,11 +56,7 @@ public class ChatActivity extends Activity {
         //load theme
         SharedPreferences prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         int theme = prefs.getInt("theme", 0);
-
-        if (theme == 1)
-            this.setTheme(R.style.Theme1);
-        else
-            this.setTheme(R.style.DefaultTheme);
+        this.setTheme(loadTheme(theme));
 
         setContentView(R.layout.activity_chat);
 
@@ -237,6 +233,25 @@ public class ChatActivity extends Activity {
         }
 
 
+    }
+
+    /**
+     * return a int value according to the given theme
+     * @param theme value of theme to load
+     * @return appropriate int value
+     */
+    protected static int loadTheme(int theme){
+
+        switch(theme) {
+
+            case 1:
+                return R.style.Theme1;
+            case 2:
+                return R.style.Theme2;
+            default:
+                return R.style.DefaultTheme;
+
+        }
     }
 
     /**

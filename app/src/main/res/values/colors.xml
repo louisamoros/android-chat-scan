@@ -1,14 +1,26 @@
 <resources>
-    <!-- color default theme -->
-    <color name="action_bar_background">#ac2325</color>
+
+    <!-- common -->
     <color name="black">#000000</color>
     <color name="white">#ffffffff</color>
-    <color name="gray_light">#bfbfbf</color>
-    <color name="window_background">#e2de595c</color>
-    <color name="foreground_material_light">#e2cfb9ba</color>
+
+    <!-- color default theme -->
+    <color name="action_bar_background0">#ac2325</color>
+    <color name="window_background0">#e2de595c</color>
+    <color name="messages_left0">#993300</color>
+    <color name="messages_right0">#990000</color>
 
     <!-- color custom theme 1 -->
-    <color name="blue">#3399cc</color>
-    <color name="blue_action_bar">#3399ff</color>
+    <color name="action_bar_background1">#3399ff</color>
+    <color name="window_background1">#3399cc</color>
+    <color name="messages_left1">#000099</color>
+    <color name="messages_right1">#0000cc</color>
+
+    <!-- color custom theme 2 -->
+    <color name="action_bar_background2">#669900</color>
+    <color name="window_background2">#66cc00</color>
+    <color name="messages_left2">#66cc99</color>
+    <color name="messages_right2">#66ff99</color>
+
 
 </resources>

@@ -2,11 +2,13 @@
 <resources>
 <string-array name="ThemesList">
     <item name="default">default theme</item>
-    <item name="theme1">custom theme</item>
+    <item name="theme1">custom theme blue sky</item>
+    <item name="theme2">custom theme green apple</item>
 </string-array>
 <string-array name="ThemesValues">
     <item name="default">0</item>
     <item name="theme1">1</item>
+    <item name="theme2">2</item>
 </string-array>
 
 </resources>

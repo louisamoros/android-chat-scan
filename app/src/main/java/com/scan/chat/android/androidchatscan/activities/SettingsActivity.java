@@ -12,9 +12,14 @@ import com.scan.chat.android.androidchatscan.R;
 public class SettingsActivity extends PreferenceActivity {
 
     public static final String THEMES_PREFS = "ThemePrefs";
+    private SharedPreferences spref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        spref = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        this.setTheme(ChatActivity.loadTheme(spref.getInt("theme", 0)));
+
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.settings);
@@ -28,7 +33,7 @@ public class SettingsActivity extends PreferenceActivity {
                                               Object newValue) {
 
                 //add or change theme value in user's preferences
-                SharedPreferences spref = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+                spref = getSharedPreferences(MainActivity.PREFS_NAME, 0);
                 SharedPreferences.Editor editor = spref.edit();
                 editor.putInt("theme", Integer.parseInt(newValue.toString()));
                 editor.commit();
