@@ -44,7 +44,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:hint="@string/username"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/input_text"                android:hint="@string/username"
                 android:maxLines="1"
                 android:singleLine="true" />
 
@@ -53,7 +55,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:hint="@string/password"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/input_text"                android:hint="@string/password"
                 android:maxLines="1"
                 android:singleLine="true" />
 
@@ -61,6 +65,9 @@
                 android:id="@+id/password_confirmation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/input_text"
                 android:inputType="textPassword"
                 android:hint="@string/password_confirmation"
                 android:maxLines="1"

@@ -43,6 +43,7 @@
             android:src="@mipmap/ic_send_btn"
             android:id="@+id/Button"
             android:background="@null"
+            android:layout_centerInParent="true"
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -50,13 +51,16 @@
 
         <EditText
             android:id="@+id/EditText"
-            android:paddingTop="15dp"
+            android:layout_centerInParent="true"
+            android:padding="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/input_text"
             android:layout_width="fill_parent"
             android:layout_toLeftOf="@id/Button"
             android:layout_height="wrap_content"
             android:hint="@string/prompt_message"
-            android:inputType="text"
-            >
+            android:inputType="text">
         </EditText>
 
     </RelativeLayout>
