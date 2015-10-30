@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/pref_update_setting" >
+
+        <ListPreference
+            android:key="ThemePrefs"
+            android:entries="@array/ThemesList"
+            android:summary="@string/pref_sync_frequency_summary"
+            android:entryValues="@array/ThemesValues"
+            android:title="@string/pref_sync_frequency" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

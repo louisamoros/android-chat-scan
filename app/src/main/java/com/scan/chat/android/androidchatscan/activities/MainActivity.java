@@ -28,9 +28,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
     public static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     public static final String PREFS_NAME = "MyPrefsFile";
 
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
+    //Keep track of the login task to ensure we can cancel it if requested.
     private UserLoginTask mAuthTask = null;
 
     public static Activity mLoginActivity;
@@ -90,10 +88,10 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         // Sign in button
         mSignInButton = (Button) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
+                @Override
+                public void onClick(View view) {
+                    attemptLogin();
+                }
         });
 
         // Register button

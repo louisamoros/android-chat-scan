@@ -36,6 +36,8 @@ public class ChatActivity extends Activity {
 
     public static ListView listMessage;
     private static int RESULT_LOAD_IMAGE = 1;
+    protected static Activity mChatActivity;
+
     private UserSendTask sendTask;
     private LoadMessagesTask loadMessagesTask;
     private String message;
@@ -50,19 +52,30 @@ public class ChatActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //load theme
+        SharedPreferences prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        int theme = prefs.getInt("theme", 0);
+
+        if (theme == 1)
+            this.setTheme(R.style.Theme1);
+        else
+            this.setTheme(R.style.DefaultTheme);
+
         setContentView(R.layout.activity_chat);
+
+        //keep a reference to this activity to be able to finish it from another entity
+        mChatActivity = this;
 
         // List view setup
         listMessage = (ListView) findViewById(R.id.ListMessage);
 
-
-        // Call method to load messages with EXTRA_AUTH
+        // Call task to load messages
         loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
         loadMessagesTask.execute();
 
-        //get the "pull to refresh" view
+        //get the "pull to refresh" view and define its behavior
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
-        //mSwipeRefreshLayout.setColorSchemeResources(Color.BLACK);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -71,7 +84,7 @@ public class ChatActivity extends Activity {
             }
         });
 
-        // send message button
+        //set 'send message' button
         mMessageText = (EditText) findViewById(R.id.EditText);
         mSendButton = (Button) findViewById(R.id.Button);
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -226,6 +239,10 @@ public class ChatActivity extends Activity {
 
     }
 
+    /**
+     * This method opens the phone's gallery and makes the user chose one,
+     * then sends it to the server
+     */
     private void openGalleryAndSend()
     {
         Intent i = new Intent(
@@ -252,14 +269,6 @@ public class ChatActivity extends Activity {
         // execute asynchronus task to send message
         sendTask = new UserSendTask(false, ChatActivity.this);
         sendTask.execute(message, null);
-    }
-
-    protected void showSpinner() {
-        //TODO: show spinner when loading message or sending message.
-    }
-
-    protected void hideSpinner() {
-        //TODO: hide spinner
     }
 
 }

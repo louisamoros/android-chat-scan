@@ -112,7 +112,7 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
             // Declare activity switch intent
             Intent intent = new Intent(mContext, ChatActivity.class);
 
-            // save username and password using a shared preference
+            // save username, password and auth using a shared preference
             SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
             SharedPreferences.Editor editor = sPrefs.edit();
             editor.putString("username", username);
@@ -123,7 +123,6 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
             // Start activity
             mContext.startActivity(intent);
             // we don't want the current activity to be in the backstack,
-            //MainActivity.la.finish();
             MainActivity.mLoginActivity.finish();
 
         } else {
