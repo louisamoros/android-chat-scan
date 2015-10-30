@@ -148,14 +148,9 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             cancel = true;
         }
 
-        // Check for a valid password, if the user entered one.
+        // Check for a valid password
         if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
