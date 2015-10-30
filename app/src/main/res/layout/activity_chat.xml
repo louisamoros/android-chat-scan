@@ -22,10 +22,10 @@
 
         <ListView xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/ListMessage"
+            android:divider="@null"
             android:layout_above="@+id/InnerRelativeLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
+            android:layout_height="wrap_content" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
@@ -38,13 +38,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" >
 
-        <Button
-            android:text="@string/label_send_button"
+        <ImageButton
+            android:src="@mipmap/ic_send_btn"
             android:id="@+id/Button"
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-        </Button>
+        </ImageButton>
 
         <EditText
             android:id="@+id/EditText"

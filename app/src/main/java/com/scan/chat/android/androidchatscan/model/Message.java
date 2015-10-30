@@ -50,8 +50,4 @@ public class Message {
         attachments.add(attachment);
     }
 
-    @Override
-    public String toString() {
-        return this.login + ": " + this.message;
-    }
 }
