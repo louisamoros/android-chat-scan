@@ -24,31 +24,29 @@ public class SettingsActivity extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.settings);
 
-        //get a handler to the theme preference and define onPreferenceChange() behavior
+        // Get a handler to the theme preference and define onPreferenceChange() behavior
         ListPreference pref = (ListPreference)findPreference(THEMES_PREFS);
         pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
             public boolean onPreferenceChange(Preference preference,
                                               Object newValue) {
+            // Add or change theme value in user's preferences
+            spref = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+            SharedPreferences.Editor editor = spref.edit();
+            editor.putInt("theme", Integer.parseInt(newValue.toString()));
+            editor.commit();
 
-                //add or change theme value in user's preferences
-                spref = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-                SharedPreferences.Editor editor = spref.edit();
-                editor.putInt("theme", Integer.parseInt(newValue.toString()));
-                editor.commit();
+            // Get back to chat activity (we actually finish the current chat activity
+            // to make sure we keep a single instance and start a new one)
+            Intent intent = new Intent(SettingsActivity.this, ChatActivity.class);
+            ChatActivity.mChatActivity.finish();
+            startActivity(intent);
+            finish();
 
-                //get back to chat activity (we actually finish the current chat activity
-                //to make sure we keep a single instance and start a new one)
-                Intent intent = new Intent(SettingsActivity.this, ChatActivity.class);
-                ChatActivity.mChatActivity.finish();
-                startActivity(intent);
-                finish();
-
-                return true;
+            return true;
             }
 
         });
-
     }
 }
