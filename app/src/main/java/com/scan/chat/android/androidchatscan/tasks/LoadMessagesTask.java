@@ -26,7 +26,7 @@ import static android.widget.Toast.LENGTH_LONG;
 public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
 
     private Context mContext;
-    private  ArrayList<Message> allMessages;
+    private ArrayList<Message> allMessages;
 
     public LoadMessagesTask(Context context){
         this.mContext = context;
@@ -35,7 +35,7 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
 
-        //get user info from sharedPreferences
+        // Get user info from sharedPreferences
         SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
         String auth = sPrefs.getString("auth", null);
 

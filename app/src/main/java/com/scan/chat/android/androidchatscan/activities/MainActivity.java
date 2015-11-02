@@ -28,9 +28,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
     public static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     public static final String PREFS_NAME = "MyPrefsFile";
 
-    //Keep track of the login task to ensure we can cancel it if requested.
-    private UserLoginTask mAuthTask = null;
-
+    // Keep track of the login task to ensure we can cancel it if requested.
+    private UserLoginTask userLoginTask = null;
     public static Activity mLoginActivity;
 
     // UI references.
@@ -54,9 +53,9 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
         if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
             // Declare activity switch intent
-            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+            Intent chatActivity = new Intent(mLoginActivity, ChatActivity.class);
             // Start activity
-            startActivity(intent);
+            startActivity(chatActivity);
         }
 
         // Title with special font
@@ -101,9 +100,9 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             public void onClick(View view) {
                 // Go to resister form
                 // Declare activity switch intent
-                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                Intent registerActivity = new Intent(mLoginActivity, RegisterActivity.class);
                 // Start activity
-                startActivity(intent);
+                startActivity(registerActivity);
             }
         });
 
@@ -113,8 +112,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
 
     @Override
     protected void onPause() {
-        if (mAuthTask != null) {
-            mAuthTask.cancel(true);
+        if (userLoginTask != null) {
+            userLoginTask.cancel(true);
         }
         super.onPause();
     }
@@ -126,8 +125,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
      */
     private void attemptLogin() {
         // Cancel previous task if it is still running
-        if (mAuthTask != null && mAuthTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            mAuthTask.cancel(true);
+        if (userLoginTask != null && userLoginTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            userLoginTask.cancel(true);
         }
 
         // Reset errors.
@@ -162,13 +161,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            mAuthTask = new UserLoginTask(MainActivity.this);
-            mAuthTask.execute(username, password);
+            userLoginTask = new UserLoginTask(mLoginActivity);
+            userLoginTask.execute(username, password);
         }
     }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() > 4;
-    }
-
 }
