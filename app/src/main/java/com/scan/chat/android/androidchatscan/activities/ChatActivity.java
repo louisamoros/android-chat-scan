@@ -141,9 +141,7 @@ public class ChatActivity extends Activity {
                         dialog.cancel();
                     }
                 });
-
                 builder.show();*/
-
                 return true;
 
             case R.id.action_settings:
@@ -198,6 +196,7 @@ public class ChatActivity extends Activity {
 
             // Set up the input
             final EditText input = new EditText(mChatActivity);
+
             // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
             input.setInputType(InputType.TYPE_CLASS_TEXT);
             builder.setView(input);
@@ -218,12 +217,8 @@ public class ChatActivity extends Activity {
                     dialog.cancel();
                 }
             });
-
             builder.show();
-
         }
-
-
     }
 
     /**
@@ -269,10 +264,10 @@ public class ChatActivity extends Activity {
             userSendTask.cancel(true);
         }
 
-        // get message string from editview
+        // Get message string from editview
         String message = mMessageText.getText().toString();
 
-        // execute asynchronus task to send message
+        // Execute asynchronus task to send message
         userSendTask = new UserSendTask(false, mChatActivity);
         userSendTask.execute(message, null);
     }
