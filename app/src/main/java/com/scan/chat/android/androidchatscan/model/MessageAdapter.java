@@ -71,8 +71,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         String images[] = message.getImages();
 
         if(images != null && images.length != 0) {
-            new LoadImageTask(holder.image).execute(images[0]);
-//        new LoadImageTask(holder.image).execute("http://www.online-image-editor.com//styles/2014/images/example_image.png");
+            new LoadImageTask(holder.image, context).execute(images[0]);
         }
 
         return row;
