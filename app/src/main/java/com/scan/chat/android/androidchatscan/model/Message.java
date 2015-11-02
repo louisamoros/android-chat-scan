@@ -18,10 +18,13 @@ public class Message {
     private String message;
     private List<Attachment> attachments;
 
-    public Message(String id, String login, String message) {
+    private String images[];
+
+    public Message(String id, String login, String message, String images[]) {
         this.uuid = id;
         this.login = login;
         this.message = message;
+        this.images = images;
         this.attachments = new ArrayList<>();
     }
 
@@ -48,6 +51,14 @@ public class Message {
     public void addAttachment(Attachment attachment)
     {
         attachments.add(attachment);
+    }
+
+    public String[] getImages() {
+        return images;
+    }
+
+    public void setImages(String[] images) {
+        this.images = images;
     }
 
     /**
