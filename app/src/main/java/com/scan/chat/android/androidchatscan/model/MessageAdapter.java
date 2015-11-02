@@ -66,6 +66,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         holder.login.setText(message.getLogin());
         holder.message.setText(message.getMessage());
 
+        /*
+        * TODO
+        * */
+        //holder.image blablabla...
+        //List<Image> images = message.getImages();
+        //images.get(0).setUrlImage();
+        //Right now we only display the first image of the received list
+        //if(position == 1) {
+        //new LoadImageTask(holder.image).execute("http://www.online-image-editor.com//styles/2014/images/example_image.png");
+        //}
+        //holder.image.(images.get(0).getUrlImage());
+
         return row;
     }
 
