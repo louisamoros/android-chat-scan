@@ -16,12 +16,15 @@ import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Attachment;
 import com.scan.chat.android.androidchatscan.model.Message;
+import com.scan.chat.android.androidchatscan.model.Image;
 
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_LONG;
@@ -59,10 +62,13 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
         username = sPrefs.getString("username", null);
         auth = sPrefs.getString("auth", null);
 
-        //create message to send
-        Message mess = new Message(UUID.randomUUID().toString(),username,message);
+        // Put empty images string array for the constructor
+        String images[] = new String[1];
 
-        //add image to message if required
+        // Create message to send
+        Message mess = new Message(UUID.randomUUID().toString(),username,message,images);
+
+        // Add image to message if required
         if(img)
         {
             Attachment att = new Attachment(encodedImage);

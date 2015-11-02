@@ -17,11 +17,13 @@ public class Message {
     private String login;
     private String message;
     private List<Attachment> attachments;
+    private String images[];
 
-    public Message(String id, String login, String message) {
+    public Message(String id, String login, String message, String images[]) {
         this.uuid = id;
         this.login = login;
         this.message = message;
+        this.images = images;
         this.attachments = new ArrayList<>();
     }
 

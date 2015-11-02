@@ -56,6 +56,7 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
 
             if(response == 200) {
                 Type type = new TypeToken<ArrayList<Message>>() {}.getType();
+
                 String isToString = IOUtils.toString(conn.getInputStream(), "UTF-8");
                 allMessages = new Gson().fromJson(isToString, type);
                 return true;
