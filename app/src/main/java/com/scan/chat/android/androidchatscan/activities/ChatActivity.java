@@ -18,7 +18,6 @@ import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -28,7 +27,6 @@ import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.InvalidMarkException;
 
 
 public class ChatActivity extends Activity {
@@ -37,7 +35,7 @@ public class ChatActivity extends Activity {
     private static int RESULT_LOAD_IMAGE = 1;
     protected static Activity mChatActivity;
 
-    private UserSendTask sendTask;
+    private UserSendTask userSendTask;
     private LoadMessagesTask loadMessagesTask;
     private String message;
     private String encodedImage;
@@ -52,34 +50,34 @@ public class ChatActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //load theme
+        // Keep a reference to this activity to be able to finish it from another entity
+        mChatActivity = this;
+
+        // Load theme
         SharedPreferences prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         int theme = prefs.getInt("theme", 0);
-        this.setTheme(loadTheme(theme));
+        mChatActivity.setTheme(loadTheme(theme));
 
         setContentView(R.layout.activity_chat);
-
-        //keep a reference to this activity to be able to finish it from another entity
-        mChatActivity = this;
 
         // List view setup
         listMessage = (ListView) findViewById(R.id.ListMessage);
 
         // Call task to load messages
-        loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
+        loadMessagesTask = new LoadMessagesTask(mChatActivity);
         loadMessagesTask.execute();
 
-        //get the "pull to refresh" view and define its behavior
+        // Get the "pull to refresh" view and define its behavior
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
+                loadMessagesTask = new LoadMessagesTask(mChatActivity);
                 loadMessagesTask.execute();
             }
         });
 
-        //set 'send message' button
+        // Set 'send message' button
         mMessageText = (EditText) findViewById(R.id.EditText);
         mSendButton = (ImageButton) findViewById(R.id.Button);
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +102,6 @@ public class ChatActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.import_img_button:
                 openGalleryAndSend();
@@ -134,8 +131,8 @@ public class ChatActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         message = input.getText().toString();
-                        sendTask = new UserSendTask(true, ChatActivity.this);
-                        sendTask.execute(message, encodedImage);
+                        userSendTask = new UserSendTask(true, ChatActivity.this);
+                        userSendTask.execute(message, encodedImage);
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -150,29 +147,25 @@ public class ChatActivity extends Activity {
                 return true;
 
             case R.id.action_settings:
-                Intent j = new Intent(this, SettingsActivity.class);
-                startActivity(j);
+                Intent settingsActivity = new Intent(mChatActivity, SettingsActivity.class);
+                startActivity(settingsActivity);
                 return true;
 
             case R.id.action_log_out:
-                //clear user's data to disconnect
+                // Clear user's data to disconnect
                 SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
                 SharedPreferences.Editor editor = sPrefs.edit();
                 editor.clear();
                 editor.commit();
-                Intent k = new Intent(ChatActivity.this, MainActivity.class);
-                startActivity(k);
-                // we don't want the current activity to be in the backstack,
+                Intent mainActivity = new Intent(mChatActivity, MainActivity.class);
+                startActivity(mainActivity);
+                // We don't want the current activity to be in the backstack,
                 finish();
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
-
-        //return id == R.id.action_log_out;
-
-
     }
 
     @Override
@@ -197,15 +190,14 @@ public class ChatActivity extends Activity {
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
 
-            //make the user confirm he wants to send the picture, and make him add a message
-
+            // Make the user confirm he wants to send the picture, and make him add a message
             message = "";
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(mChatActivity);
             builder.setTitle("Send an image");
 
             // Set up the input
-            final EditText input = new EditText(this);
+            final EditText input = new EditText(mChatActivity);
             // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
             input.setInputType(InputType.TYPE_CLASS_TEXT);
             builder.setView(input);
@@ -216,8 +208,8 @@ public class ChatActivity extends Activity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     message = input.getText().toString();
-                    sendTask = new UserSendTask(true, ChatActivity.this);
-                    sendTask.execute(message, encodedImage);
+                    userSendTask = new UserSendTask(true, mChatActivity);
+                    userSendTask.execute(message, encodedImage);
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -273,16 +265,16 @@ public class ChatActivity extends Activity {
      */
     private void onSendMessage() {
         // Cancel previous task if it is still running
-        if (sendTask != null && sendTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            sendTask.cancel(true);
+        if (userSendTask != null && userSendTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            userSendTask.cancel(true);
         }
 
         // get message string from editview
         String message = mMessageText.getText().toString();
 
         // execute asynchronus task to send message
-        sendTask = new UserSendTask(false, ChatActivity.this);
-        sendTask.execute(message, null);
+        userSendTask = new UserSendTask(false, mChatActivity);
+        userSendTask.execute(message, null);
     }
 
 }
