@@ -25,7 +25,7 @@ public class RegisterActivity extends Activity{
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserRegisterTask mAuthTask = null;
+    private UserRegisterTask userRegisterTask = null;
     public static Activity mRegisterActivity;
 
     // UI references.
@@ -86,8 +86,8 @@ public class RegisterActivity extends Activity{
      */
     private void attemptRegister() {
         // Cancel previous task if it is still running
-        if (mAuthTask != null && mAuthTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            mAuthTask.cancel(true);
+        if (userRegisterTask != null && userRegisterTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            userRegisterTask.cancel(true);
         }
 
         // Reset errors.
@@ -122,7 +122,7 @@ public class RegisterActivity extends Activity{
             focusView = mPasswordConfirmView;
             cancel = true;
         }
-        // compare passwords
+        // Compare passwords
         else {
             if(!password.equals(passwordConfirm))
             {
@@ -140,8 +140,8 @@ public class RegisterActivity extends Activity{
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             //showProgress(true);
-            mAuthTask = new UserRegisterTask(RegisterActivity.this);
-            mAuthTask.execute(username, password);
+            userRegisterTask = new UserRegisterTask(mRegisterActivity);
+            userRegisterTask.execute(username, password);
         }
     }
 }
