@@ -1,12 +1,12 @@
 package com.scan.chat.android.androidchatscan.model;
 
-import android.support.annotation.NonNull;
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.scan.chat.android.androidchatscan.activities.MainActivity;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
  * Created by louis on 10/13/15.
@@ -22,7 +22,7 @@ public class Message {
         this.uuid = id;
         this.login = login;
         this.message = message;
-        this.attachments = new ArrayList<Attachment>();
+        this.attachments = new ArrayList<>();
     }
 
     public String getId() { return uuid; }
@@ -48,6 +48,17 @@ public class Message {
     public void addAttachment(Attachment attachment)
     {
         attachments.add(attachment);
+    }
+
+    /**
+     * return true if this message comes from the user
+     * @param context current context
+     */
+    public boolean isMine(Context context){
+        SharedPreferences sprefs = context.getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        if(sprefs.getString("username", null).equals(login))
+            return true;
+        return false;
     }
 
 }

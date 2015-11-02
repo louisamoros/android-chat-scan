@@ -53,10 +53,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             holder.login = (TextView) row.findViewById(R.id.login_row);
             LinearLayout messageRowContainer = (LinearLayout) row.findViewById(R.id.message_row_container);
 
-            if(currentUsername.toString().equals(message.getLogin().toString())) {
+            if(message.isMine(context)) {
                 messageRowContainer.setGravity(Gravity.RIGHT);
-            } else {
-                messageRowContainer.setGravity(Gravity.LEFT);
             }
 
             row.setTag(holder);

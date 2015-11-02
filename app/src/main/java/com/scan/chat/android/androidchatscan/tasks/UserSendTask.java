@@ -7,7 +7,6 @@ package com.scan.chat.android.androidchatscan.tasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
