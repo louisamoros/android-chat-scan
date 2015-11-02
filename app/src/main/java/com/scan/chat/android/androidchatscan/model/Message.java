@@ -17,6 +17,7 @@ public class Message {
     private String login;
     private String message;
     private List<Attachment> attachments;
+
     private String images[];
 
     public Message(String id, String login, String message, String images[]) {
@@ -50,6 +51,14 @@ public class Message {
     public void addAttachment(Attachment attachment)
     {
         attachments.add(attachment);
+    }
+
+    public String[] getImages() {
+        return images;
+    }
+
+    public void setImages(String[] images) {
+        this.images = images;
     }
 
     /**

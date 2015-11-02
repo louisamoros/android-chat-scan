@@ -8,11 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
+import com.scan.chat.android.androidchatscan.tasks.LoadImageTask;
 
 import java.util.ArrayList;
 
@@ -51,6 +53,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             holder = new MessageHolder();
             holder.message = (TextView) row.findViewById(R.id.message_row);
             holder.login = (TextView) row.findViewById(R.id.login_row);
+            holder.image = (ImageView) row.findViewById(R.id.image_row);
             LinearLayout messageRowContainer = (LinearLayout) row.findViewById(R.id.message_row_container);
 
             if(message.isMine(context)) {
@@ -65,18 +68,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         holder.login.setText(message.getLogin());
         holder.message.setText(message.getMessage());
+        String images[] = message.getImages();
 
-        /*
-        * TODO
-        * */
-        //holder.image blablabla...
-        //List<Image> images = message.getImages();
-        //images.get(0).setUrlImage();
-        //Right now we only display the first image of the received list
-        //if(position == 1) {
-        //new LoadImageTask(holder.image).execute("http://www.online-image-editor.com//styles/2014/images/example_image.png");
-        //}
-        //holder.image.(images.get(0).getUrlImage());
+        if(images != null && images.length != 0) {
+            new LoadImageTask(holder.image).execute(images[0]);
+//        new LoadImageTask(holder.image).execute("http://www.online-image-editor.com//styles/2014/images/example_image.png");
+        }
 
         return row;
     }
@@ -85,5 +82,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     {
         TextView login;
         TextView message;
+        ImageView image;
     }
 }
