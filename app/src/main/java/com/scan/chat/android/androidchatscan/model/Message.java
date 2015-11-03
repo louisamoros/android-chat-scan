@@ -67,9 +67,11 @@ public class Message {
      */
     public boolean isMine(Context context){
         SharedPreferences sprefs = context.getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        if(sprefs.getString("username", null).equals(login))
+        if(sprefs.getString("username", null).equals(login)) {
             return true;
-        return false;
+        } else {
+            return false;
+        }
     }
 
 }

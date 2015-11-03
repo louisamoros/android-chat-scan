@@ -15,7 +15,7 @@ import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Message;
-import com.scan.chat.android.androidchatscan.model.MessageAdapter;
+import com.scan.chat.android.androidchatscan.utils.MessageAdapter;
 
 import org.apache.commons.io.IOUtils;
 
@@ -44,7 +44,7 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
         String auth = sPrefs.getString("auth", null);
 
         try {
-            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=10&offset=20")
+            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=100&offset=20")
                     .toString();
             URL imageUrl = new URL(urlString);
 

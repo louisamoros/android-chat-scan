@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.model;
+package com.scan.chat.android.androidchatscan.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
+import com.scan.chat.android.androidchatscan.model.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadImageTask;
 
 import java.util.ArrayList;
