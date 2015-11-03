@@ -74,6 +74,7 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
             // Set the adapter
             MessageAdapter adapter = new MessageAdapter(mContext, R.layout.message_row, allMessages);
             ChatActivity.listMessage.setAdapter(adapter);
+
             // Stop the animation after all the messages are fully loaded
             ChatActivity.mSwipeRefreshLayout.setRefreshing(false);
         } else {

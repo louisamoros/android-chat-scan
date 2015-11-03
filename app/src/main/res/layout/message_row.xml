@@ -5,6 +5,8 @@
 
     <LinearLayout
         android:id="@+id/message_row_container"
+        android:clickable="true"
+        android:onClick=""
         android:layout_width="fill_parent"
         android:gravity="left"
         android:layout_height="wrap_content" >

@@ -22,8 +22,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-import com.dropbox.client2.DropboxAPI;
-import com.dropbox.client2.android.AndroidAuthSession;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
@@ -35,19 +33,12 @@ public class ChatActivity extends Activity {
 
     public static ListView listMessage;
     private static int RESULT_LOAD_IMAGE = 1;
-    protected static Activity mChatActivity;
+    public static Activity mChatActivity;
 
     private UserSendTask userSendTask;
     private LoadMessagesTask loadMessagesTask;
     private String message;
     private String encodedImage;
-
-    //DropBox references following
-    private DropboxAPI<AndroidAuthSession> mDBApi;
-    final static private String APP_KEY = "vjt85baol7x9au3";
-    final static private String APP_SECRET = "unx2vwjk7viub3a";
-    private boolean dbFlag = false; // this flag is set to true when the user is attempting to send a picture to a dropbox
-
 
     // UI references.
     public static EditText mMessageText;
@@ -94,6 +85,7 @@ public class ChatActivity extends Activity {
                 onSendMessage();
             }
         });
+
     }
 
     @Override
@@ -192,6 +184,7 @@ public class ChatActivity extends Activity {
         }
     }
 
+
     /**
      * return a int value according to the given theme
      * @param theme value of theme to load
@@ -242,5 +235,4 @@ public class ChatActivity extends Activity {
         userSendTask = new UserSendTask(false, mChatActivity);
         userSendTask.execute(message, null);
     }
-
 }

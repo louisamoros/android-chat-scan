@@ -34,6 +34,8 @@
     <string name="sent_failed">Error, try again.</string>
     <string name="prompt_message">Text Message</string>
     <string name="title_activity_settings2">Settings2Activity</string>
+    <string name="save_image_success">Image saved successfully!</string>
+    <string name="save_image_failed">failed to save image</string>
 
     <!-- Strings related to settings -->
     <string name="menu_settings">Settings</string>
