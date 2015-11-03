@@ -11,7 +11,7 @@ import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Message;
-import com.scan.chat.android.androidchatscan.model.MessageAdapter;
+import com.scan.chat.android.androidchatscan.utils.MessageAdapter;
 
 import org.apache.commons.io.IOUtils;
 
