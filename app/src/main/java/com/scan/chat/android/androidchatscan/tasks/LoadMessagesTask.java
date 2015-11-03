@@ -40,7 +40,7 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
         String auth = sPrefs.getString("auth", null);
 
         try {
-            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=10&offset=20")
+            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=100&offset=20")
                     .toString();
             URL imageUrl = new URL(urlString);
 
