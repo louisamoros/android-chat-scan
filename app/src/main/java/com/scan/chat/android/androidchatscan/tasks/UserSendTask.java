@@ -16,15 +16,12 @@ import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Attachment;
 import com.scan.chat.android.androidchatscan.model.Message;
-import com.scan.chat.android.androidchatscan.model.Image;
 
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_LONG;
@@ -126,7 +123,6 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        //sendTask = null;
 
         if (success) {
             //display success message and clear text input field
@@ -139,10 +135,5 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
         else {
             Toast.makeText(mContext, R.string.sent_failed, LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    protected void onCancelled() {
-        //sendTask = null;
     }
 }

@@ -8,18 +8,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
-import com.scan.chat.android.androidchatscan.model.Message;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Created by louis on 11/2/15.

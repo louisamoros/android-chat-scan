@@ -44,10 +44,6 @@ public class Message {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public void addAttachment(Attachment attachment)
     {
         attachments.add(attachment);
@@ -55,10 +51,6 @@ public class Message {
 
     public String[] getImages() {
         return images;
-    }
-
-    public void setImages(String[] images) {
-        this.images = images;
     }
 
     /**

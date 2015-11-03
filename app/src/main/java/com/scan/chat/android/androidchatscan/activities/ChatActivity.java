@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,7 +15,6 @@ import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,19 +24,11 @@ import android.widget.ListView;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
-import com.dropbox.client2.exception.DropboxException;
-import com.dropbox.client2.session.AppKeyPair;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 
 public class ChatActivity extends Activity {
@@ -103,7 +92,6 @@ public class ChatActivity extends Activity {
             @Override
             public void onClick(View view) {
                 onSendMessage();
-                //startDBAauthentification();
             }
         });
     }
@@ -125,43 +113,6 @@ public class ChatActivity extends Activity {
         switch (id) {
             case R.id.import_img_button:
                 openGalleryAndSend();
-
-                /*Drawable loul = getResources().getDrawable( R.drawable.ic_launcher);
-                Bitmap imageBitmap = ((BitmapDrawable)loul).getBitmap();
-
-                //get a encode64 image from the bitmap
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
-                message = "";
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Send an image");
-
-                // Set up the input
-                final EditText input = new EditText(this);
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-                builder.setMessage("add a message: ");
-
-                // Set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        message = input.getText().toString();
-                        userSendTask = new UserSendTask(true, ChatActivity.this);
-                        userSendTask.execute(message, encodedImage);
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();*/
                 return true;
 
             case R.id.action_settings:
@@ -241,31 +192,6 @@ public class ChatActivity extends Activity {
         }
     }
 
-    protected void onResume() {
-        super.onResume();
-
-        // if the activity is reaching back from dropbox
-        if(dbFlag)
-        {
-            if (mDBApi.getSession().authenticationSuccessful()) {
-                try {
-                    // Required to complete auth, sets the access token on the session
-                    mDBApi.getSession().finishAuthentication();
-
-                    String accessToken = mDBApi.getSession().getOAuth2AccessToken();
-
-                } catch (IllegalStateException e) {
-                    Log.i("DbAuthLog", "Error authenticating", e);
-                } finally {
-                    dbFlag = false;
-                }
-
-                //sendPicToDB();
-            }
-        }
-        dbFlag = false;
-    }
-
     /**
      * return a int value according to the given theme
      * @param theme value of theme to load
@@ -315,67 +241,6 @@ public class ChatActivity extends Activity {
         // Execute asynchronus task to send message
         userSendTask = new UserSendTask(false, mChatActivity);
         userSendTask.execute(message, null);
-    }
-
-    private void startDBAauthentification()
-    {
-
-        AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
-        AndroidAuthSession session = new AndroidAuthSession(appKeys);
-        mDBApi = new DropboxAPI<AndroidAuthSession>(session);
-
-        //start authentification
-        dbFlag = true;
-        mDBApi.getSession().startOAuth2Authentication(ChatActivity.this);
-    }
-
-    private void sendPicToDB()
-    {
-        //temporary bitmap
-         Drawable ic_launcher = getResources().getDrawable( R.drawable.ic_launcher);
-         Bitmap imageBitmap = ((BitmapDrawable)ic_launcher).getBitmap();
-
-
-        String filename = getFilename();
-
-        //create a file to write bitmap data
-        File file = new File(getCacheDir(), filename);
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            int a = 2;
-            return;
-            //error message
-        }
-
-        //create outputStream
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            int a = 2;
-            return;
-            //error message
-        }
-
-        imageBitmap.compress(Bitmap.CompressFormat.PNG, 85, outputStream);
-
-        try{
-            //this line still have execution problems
-            DropboxAPI.DropboxFileInfo info = mDBApi.getFile(filename, null, outputStream, null);
-        }
-        catch (DropboxException e){
-            int a = 2;
-            return;
-        }
-    }
-
-    private String getFilename(){
-
-        //generate filename based on current date
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
-        return "image-" + df.format(c.getTime());
     }
 
 }

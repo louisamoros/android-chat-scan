@@ -2,7 +2,6 @@ package com.scan.chat.android.androidchatscan.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.model.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadImageTask;
 
@@ -39,10 +37,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         MessageHolder holder = null;
-
-        // Get username of the current user to display right bubble message
-        SharedPreferences preferences = context.getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        String currentUsername = preferences.getString("username", null);
 
         // Get current message in the list
         Message message = listMessages.get(position);
