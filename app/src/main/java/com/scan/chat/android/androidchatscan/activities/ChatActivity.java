@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
@@ -23,7 +24,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
@@ -35,18 +39,20 @@ import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 
 public class ChatActivity extends Activity {
 
     public static ListView listMessage;
     private static int RESULT_LOAD_IMAGE = 1;
-    protected static Activity mChatActivity;
+    public static Activity mChatActivity;
 
     private UserSendTask userSendTask;
     private LoadMessagesTask loadMessagesTask;
@@ -64,6 +70,7 @@ public class ChatActivity extends Activity {
     public static EditText mMessageText;
     private ImageButton mSendButton;
     public static SwipeRefreshLayout mSwipeRefreshLayout;
+    private ImageView img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,9 +110,10 @@ public class ChatActivity extends Activity {
             @Override
             public void onClick(View view) {
                 onSendMessage();
-                //startDBAauthentification();
+                //startDBAuthentification();
             }
         });
+
     }
 
     @Override
@@ -260,7 +268,7 @@ public class ChatActivity extends Activity {
                     dbFlag = false;
                 }
 
-                //sendPicToDB();
+                savePicToDB();
             }
         }
         dbFlag = false;
@@ -317,7 +325,7 @@ public class ChatActivity extends Activity {
         userSendTask.execute(message, null);
     }
 
-    private void startDBAauthentification()
+    private void startDBAuthentification()
     {
 
         AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
@@ -329,16 +337,13 @@ public class ChatActivity extends Activity {
         mDBApi.getSession().startOAuth2Authentication(ChatActivity.this);
     }
 
-    private void sendPicToDB()
+    private void savePicToDB()
     {
         //temporary bitmap
-         Drawable ic_launcher = getResources().getDrawable( R.drawable.ic_launcher);
+         Drawable ic_launcher = getResources().getDrawable(R.drawable.ic_launcher);
          Bitmap imageBitmap = ((BitmapDrawable)ic_launcher).getBitmap();
 
-
-        String filename = getFilename();
-
-        //create a file to write bitmap data
+        /*//create a file to write bitmap data
         File file = new File(getCacheDir(), filename);
         try {
             file.createNewFile();
@@ -367,15 +372,72 @@ public class ChatActivity extends Activity {
         catch (DropboxException e){
             int a = 2;
             return;
+        }*/
+
+        //save image to phone and get handler to the file
+        File file = new File(saveImage(imageBitmap));
+        FileInputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        DropboxAPI.Entry response = null;
+        try {
+            response = mDBApi.putFile("/truc.txt", inputStream,
+                    file.length(), null, null);
+        } catch (DropboxException e) {
+            e.printStackTrace();
         }
     }
 
-    private String getFilename(){
+    private static String getFilename(){
 
         //generate filename based on current date
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
         return "image-" + df.format(c.getTime());
+    }
+
+    /**
+     * function save given image to phone's memory
+     * @param bitmap bitmap of the image to save in memory
+     * @return path of the created file
+     */
+    public String saveImage(Bitmap bitmap) {
+
+        //create repertory
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/saved_images");
+        myDir.mkdirs();
+
+        //get a filename
+        String filename = getFilename();
+        String description = "image saved from chatcat";
+
+        //set path
+        String path = new StringBuilder(root + "/saved_images")
+                .append(filename).toString();
+
+        //create image file
+        /*File file = new File (myDir, filename);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+*/
+
+        MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, filename , description);
+
+        //return path of created file
+        return path;
     }
 
 }

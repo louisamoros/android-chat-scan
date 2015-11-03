@@ -2,7 +2,11 @@ package com.scan.chat.android.androidchatscan.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -74,6 +78,7 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
             // Set the adapter
             MessageAdapter adapter = new MessageAdapter(mContext, R.layout.message_row, allMessages);
             ChatActivity.listMessage.setAdapter(adapter);
+
             // Stop the animation after all the messages are fully loaded
             ChatActivity.mSwipeRefreshLayout.setRefreshing(false);
         } else {

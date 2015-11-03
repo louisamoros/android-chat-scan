@@ -3,6 +3,8 @@ package com.scan.chat.android.androidchatscan.model;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,12 +13,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.tasks.LoadImageTask;
 
 import java.util.ArrayList;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 /**
  * Created by louis on 10/30/15.
@@ -55,6 +61,25 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             holder.login = (TextView) row.findViewById(R.id.login_row);
             holder.image = (ImageView) row.findViewById(R.id.image_row);
             LinearLayout messageRowContainer = (LinearLayout) row.findViewById(R.id.message_row_container);
+
+            if(holder.image != null)
+            {
+                holder.image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        ImageView imgView = (ImageView)view;
+                        Bitmap bitmap = ((BitmapDrawable)imgView.getDrawable()).getBitmap();
+                        //String path = ChatActivity.mChatActivity.save
+
+                        /*if(path == null)
+                            Toast.makeText(context, R.string.save_image_success, LENGTH_LONG).show();
+                        else
+                            Toast.makeText(context, R.string.save_image_failed, LENGTH_LONG).show();
+*/
+                    }
+                });
+            }
 
             if(message.isMine(context)) {
                 messageRowContainer.setGravity(Gravity.RIGHT);
