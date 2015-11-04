@@ -34,7 +34,7 @@ public class User {
 
 
     /**
-     *
+     * calls the encodeToString() method get encoded base 64
      * @return auth
      */
     public String getEncodedBase64()

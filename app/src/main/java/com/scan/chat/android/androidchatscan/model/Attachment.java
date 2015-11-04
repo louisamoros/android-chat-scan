@@ -13,22 +13,4 @@ public class Attachment {
         this.mimeType = "image/png";
         this.data = data;
     }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
-
-
 }

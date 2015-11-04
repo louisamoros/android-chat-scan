@@ -2,11 +2,7 @@ package com.scan.chat.android.androidchatscan.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;

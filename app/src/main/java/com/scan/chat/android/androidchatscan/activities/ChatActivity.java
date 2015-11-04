@@ -8,44 +8,25 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import com.dropbox.client2.DropboxAPI;
-import com.dropbox.client2.android.AndroidAuthSession;
-import com.dropbox.client2.exception.DropboxException;
-import com.dropbox.client2.session.AppKeyPair;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 
 public class ChatActivity extends Activity {
@@ -59,18 +40,10 @@ public class ChatActivity extends Activity {
     private String message;
     private String encodedImage;
 
-    //DropBox references following
-    private DropboxAPI<AndroidAuthSession> mDBApi;
-    final static private String APP_KEY = "vjt85baol7x9au3";
-    final static private String APP_SECRET = "unx2vwjk7viub3a";
-    private boolean dbFlag = false; // this flag is set to true when the user is attempting to send a picture to a dropbox
-
-
     // UI references.
     public static EditText mMessageText;
     private ImageButton mSendButton;
     public static SwipeRefreshLayout mSwipeRefreshLayout;
-    private ImageView img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +83,6 @@ public class ChatActivity extends Activity {
             @Override
             public void onClick(View view) {
                 onSendMessage();
-                //startDBAuthentification();
             }
         });
 
@@ -133,43 +105,6 @@ public class ChatActivity extends Activity {
         switch (id) {
             case R.id.import_img_button:
                 openGalleryAndSend();
-
-                /*Drawable loul = getResources().getDrawable( R.drawable.ic_launcher);
-                Bitmap imageBitmap = ((BitmapDrawable)loul).getBitmap();
-
-                //get a encode64 image from the bitmap
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
-                message = "";
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Send an image");
-
-                // Set up the input
-                final EditText input = new EditText(this);
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-                builder.setMessage("add a message: ");
-
-                // Set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        message = input.getText().toString();
-                        userSendTask = new UserSendTask(true, ChatActivity.this);
-                        userSendTask.execute(message, encodedImage);
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();*/
                 return true;
 
             case R.id.action_settings:
@@ -249,30 +184,6 @@ public class ChatActivity extends Activity {
         }
     }
 
-    protected void onResume() {
-        super.onResume();
-
-        // if the activity is reaching back from dropbox
-        if(dbFlag)
-        {
-            if (mDBApi.getSession().authenticationSuccessful()) {
-                try {
-                    // Required to complete auth, sets the access token on the session
-                    mDBApi.getSession().finishAuthentication();
-
-                    String accessToken = mDBApi.getSession().getOAuth2AccessToken();
-
-                } catch (IllegalStateException e) {
-                    Log.i("DbAuthLog", "Error authenticating", e);
-                } finally {
-                    dbFlag = false;
-                }
-
-                savePicToDB();
-            }
-        }
-        dbFlag = false;
-    }
 
     /**
      * return a int value according to the given theme
@@ -324,120 +235,4 @@ public class ChatActivity extends Activity {
         userSendTask = new UserSendTask(false, mChatActivity);
         userSendTask.execute(message, null);
     }
-
-    private void startDBAuthentification()
-    {
-
-        AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
-        AndroidAuthSession session = new AndroidAuthSession(appKeys);
-        mDBApi = new DropboxAPI<AndroidAuthSession>(session);
-
-        //start authentification
-        dbFlag = true;
-        mDBApi.getSession().startOAuth2Authentication(ChatActivity.this);
-    }
-
-    private void savePicToDB()
-    {
-        //temporary bitmap
-         Drawable ic_launcher = getResources().getDrawable(R.drawable.ic_launcher);
-         Bitmap imageBitmap = ((BitmapDrawable)ic_launcher).getBitmap();
-
-        /*//create a file to write bitmap data
-        File file = new File(getCacheDir(), filename);
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            int a = 2;
-            return;
-            //error message
-        }
-
-        //create outputStream
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            int a = 2;
-            return;
-            //error message
-        }
-
-        imageBitmap.compress(Bitmap.CompressFormat.PNG, 85, outputStream);
-
-        try{
-            //this line still have execution problems
-            DropboxAPI.DropboxFileInfo info = mDBApi.getFile(filename, null, outputStream, null);
-        }
-        catch (DropboxException e){
-            int a = 2;
-            return;
-        }*/
-
-        //save image to phone and get handler to the file
-        File file = new File(saveImage(imageBitmap));
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        DropboxAPI.Entry response = null;
-        try {
-            response = mDBApi.putFile("/truc.txt", inputStream,
-                    file.length(), null, null);
-        } catch (DropboxException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static String getFilename(){
-
-        //generate filename based on current date
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
-        return "image-" + df.format(c.getTime());
-    }
-
-    /**
-     * function save given image to phone's memory
-     * @param bitmap bitmap of the image to save in memory
-     * @return path of the created file
-     */
-    public String saveImage(Bitmap bitmap) {
-
-        //create repertory
-        String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root + "/saved_images");
-        myDir.mkdirs();
-
-        //get a filename
-        String filename = getFilename();
-        String description = "image saved from chatcat";
-
-        //set path
-        String path = new StringBuilder(root + "/saved_images")
-                .append(filename).toString();
-
-        //create image file
-        /*File file = new File (myDir, filename);
-        if (file.exists ()) file.delete ();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.flush();
-            out.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-*/
-
-        MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, filename , description);
-
-        //return path of created file
-        return path;
-    }
-
 }
