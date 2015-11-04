@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,19 +20,26 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.interfaces.UserLoginInterface;
 import com.scan.chat.android.androidchatscan.tasks.UserLoginTask;
 
+import static android.widget.Toast.LENGTH_LONG;
 
-public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>*/ {
+
+public class MainActivity extends Activity  implements UserLoginInterface {
 
     public static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
     public static final String PREFS_NAME = "MyPrefsFile";
 
     // Keep track of the login task to ensure we can cancel it if requested.
     private UserLoginTask userLoginTask = null;
-    public static Activity mLoginActivity;
+    public static UserLoginInterface mLoginActivity;
+
+    private String username;
+    private String password;
 
     // UI references.
     public static EditText mPasswordView;
@@ -53,7 +62,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         SharedPreferences sPrefs = getSharedPreferences(PREFS_NAME, 0);
         if ((sPrefs.contains("username") && sPrefs.contains("password") && sPrefs.contains("auth"))) {
             // Declare activity switch intent
-            Intent chatActivity = new Intent(mLoginActivity, ChatActivity.class);
+            Intent chatActivity = new Intent(MainActivity.this, ChatActivity.class);
             // Start activity
             startActivity(chatActivity);
         }
@@ -64,7 +73,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         textViewLoginTitle.setTypeface(face);
 
         // Hide action bar
-        ActionBar actionBar = mLoginActivity.getActionBar();
+        ActionBar actionBar = getActionBar();
         actionBar.hide();
 
         // Set up the login form.
@@ -100,7 +109,7 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
             public void onClick(View view) {
                 // Go to resister form
                 // Declare activity switch intent
-                Intent registerActivity = new Intent(mLoginActivity, RegisterActivity.class);
+                Intent registerActivity = new Intent(MainActivity.this, RegisterActivity.class);
                 // Start activity
                 startActivity(registerActivity);
             }
@@ -134,8 +143,8 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        username = mUsernameView.getText().toString();
+        password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -161,8 +170,45 @@ public class MainActivity extends Activity  /*implements LoaderCallbacks<Cursor>
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            userLoginTask = new UserLoginTask(mLoginActivity);
-            userLoginTask.execute(username, password);
+
+            //check connection
+            ConnectivityManager connMgr = (ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                // everything is good so far
+                userLoginTask = new UserLoginTask(mLoginActivity);
+                userLoginTask.execute(username, password);
+            }
+            else{
+                //error message
+            }
         }
+    }
+
+    @Override
+    public void onSuccess(String basicAuth) {
+        // Everything good!
+        Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
+
+        // Declare activity switch intent
+        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+
+        // save username, password and auth using a shared preference
+        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        SharedPreferences.Editor editor = sPrefs.edit();
+        editor.putString("username", username);
+        editor.putString("password", password);
+        editor.putString("auth", basicAuth);
+        editor.commit();
+
+        // Start activity
+        startActivity(intent);
+        // we don't want the current activity to be in the backstack,
+        finish();
+    }
+
+    @Override
+    public void onFailure() {
+        Toast.makeText(MainActivity.this, R.string.login_error, LENGTH_LONG).show();
     }
 }

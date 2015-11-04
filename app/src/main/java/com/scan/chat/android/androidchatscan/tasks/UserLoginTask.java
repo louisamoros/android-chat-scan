@@ -4,29 +4,17 @@ package com.scan.chat.android.androidchatscan.tasks;
  * Created by guillaumenostrenoff on 16/10/15.
  */
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.view.View;
-import android.widget.Toast;
 
-import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
+import com.scan.chat.android.androidchatscan.interfaces.UserLoginInterface;
 import com.scan.chat.android.androidchatscan.models.User;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate
@@ -34,14 +22,14 @@ import static android.widget.Toast.LENGTH_LONG;
  */
 public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
-    private Context mContext;
+    private UserLoginInterface activityInterface;
     private String username;
     private String password;
     private String basicAuth;
     private User user;
 
-    public UserLoginTask(Context context) {
-        this.mContext = context;
+    public UserLoginTask(UserLoginInterface activityInterface) {
+        this.activityInterface = activityInterface;
     }
 
     @Override
@@ -62,37 +50,25 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         user = new User(username,password);
         basicAuth = user.getEncodedBase64();
 
-        //check connection
-        ConnectivityManager connMgr = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            // everything is good so far
+        try {
 
-            try {
+            //authentification
+            URL imageUrl = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
+            conn.setRequestProperty("Authorization", basicAuth);
 
-                //authentification
-                URL imageUrl = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
-                conn.setRequestProperty("Authorization", basicAuth);
+            conn.setConnectTimeout(30000);
+            conn.setReadTimeout(30000);
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            conn.connect();
 
-                conn.setConnectTimeout(30000);
-                conn.setReadTimeout(30000);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-                conn.connect();
+            int response = conn.getResponseCode();
 
-                int response = conn.getResponseCode();
-
-                if (response == 200)
-                    return true;
-            } catch (IOException e) {
-                Toast.makeText(mContext, e.getMessage(), LENGTH_LONG).show();
-
-            }
-
-        } else {
-            // display error
-            Toast.makeText(mContext, R.string.no_connection, LENGTH_LONG).show();
+            if (response == 200)
+                return true;
+        } catch (IOException e) {
+            //set flag
         }
 
         return false;
@@ -104,31 +80,11 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         showProgress(false);
         user = null;
 
-        if (success) {
+        if (success)
+            activityInterface.onSuccess(basicAuth);
+        else
+            activityInterface.onFailure();
 
-            // Everything good!
-            Toast.makeText(mContext, R.string.login_success, LENGTH_LONG).show();
-
-            // Declare activity switch intent
-            Intent intent = new Intent(mContext, ChatActivity.class);
-
-            // save username, password and auth using a shared preference
-            SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
-            SharedPreferences.Editor editor = sPrefs.edit();
-            editor.putString("username", username);
-            editor.putString("password", password);
-            editor.putString("auth", basicAuth);
-            editor.commit();
-
-            // Start activity
-            mContext.startActivity(intent);
-            // we don't want the current activity to be in the backstack,
-            MainActivity.mLoginActivity.finish();
-
-        } else {
-            MainActivity.mPasswordView.setError(mContext.getString(R.string.error_incorrect_password));
-            MainActivity.mPasswordView.requestFocus();
-        }
     }
 
     @Override
@@ -144,8 +100,8 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = mContext.getResources().getInteger(android.R.integer.config_shortAnimTime);
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
             MainActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
             MainActivity.mLoginFormView.animate().setDuration(shortAnimTime).alpha(
@@ -169,6 +125,6 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
             // and hide the relevant UI components.
             MainActivity.mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             MainActivity.mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        }*/
     }
 }

@@ -29,7 +29,7 @@ import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 import java.io.ByteArrayOutputStream;
 
 
-public class ChatActivity extends Activity {
+public class ChatActivity extends Activity{
 
     public static ListView listMessage;
     private static int RESULT_LOAD_IMAGE = 1;
@@ -235,4 +235,5 @@ public class ChatActivity extends Activity {
         userSendTask = new UserSendTask(false, mChatActivity);
         userSendTask.execute(message, null);
     }
+
 }
