@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.model;
+package com.scan.chat.android.androidchatscan.models;
 
 import android.util.Base64;
 

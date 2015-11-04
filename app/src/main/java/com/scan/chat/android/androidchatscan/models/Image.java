@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.model;
+package com.scan.chat.android.androidchatscan.models;
 
 /**
  * Created by louis on 11/2/15.

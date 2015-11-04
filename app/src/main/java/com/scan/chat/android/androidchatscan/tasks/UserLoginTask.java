@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
-import com.scan.chat.android.androidchatscan.model.User;
+import com.scan.chat.android.androidchatscan.models.User;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

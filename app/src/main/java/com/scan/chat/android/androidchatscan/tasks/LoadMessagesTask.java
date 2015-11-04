@@ -10,7 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
-import com.scan.chat.android.androidchatscan.model.Message;
+import com.scan.chat.android.androidchatscan.models.Message;
 import com.scan.chat.android.androidchatscan.utils.MessageAdapter;
 
 import org.apache.commons.io.IOUtils;
@@ -72,13 +72,13 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
     protected void onPostExecute(final Boolean success) {
         if (success) {
             // Set the adapter
-            MessageAdapter adapter = new MessageAdapter(mContext, R.layout.message_row, allMessages);
+            MessageAdapter adapter = new MessageAdapter(ChatActivity.mChatActivity, R.layout.message_row, allMessages);
             ChatActivity.listMessage.setAdapter(adapter);
 
             // Stop the animation after all the messages are fully loaded
             ChatActivity.mSwipeRefreshLayout.setRefreshing(false);
         } else {
-            Toast.makeText(mContext, "Something went wrong.", LENGTH_LONG).show();
+            Toast.makeText(ChatActivity.mChatActivity, "Something went wrong.", LENGTH_LONG).show();
         }
     }
 }

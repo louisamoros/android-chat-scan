@@ -14,8 +14,8 @@ import com.google.gson.reflect.TypeToken;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
-import com.scan.chat.android.androidchatscan.model.Attachment;
-import com.scan.chat.android.androidchatscan.model.Message;
+import com.scan.chat.android.androidchatscan.models.Attachment;
+import com.scan.chat.android.androidchatscan.models.Message;
 
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
@@ -88,7 +88,7 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
             conn.setDoOutput(true);
             conn.setDoInput(true);
 
-            //create gson model
+            //create gson models
             Type type = new TypeToken<Message>() {}.getType();
             String gsonString = new Gson().toJson(mess,type);
 
