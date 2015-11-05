@@ -20,11 +20,10 @@ public class Message {
 
     private String images[];
 
-    public Message(String id, String login, String message, String images[]) {
+    public Message(String id, String login, String message) {
         this.uuid = id;
         this.login = login;
         this.message = message;
-        this.images = images;
         this.attachments = new ArrayList<>();
     }
 
@@ -44,6 +43,10 @@ public class Message {
         return message;
     }
 
+    public void setMessage(String message){
+        this.message = message;
+    }
+
     public void addAttachment(Attachment attachment)
     {
         attachments.add(attachment);
@@ -51,6 +54,10 @@ public class Message {
 
     public String[] getImages() {
         return images;
+    }
+
+    public void setImages(String images[]){
+        this.images = images;
     }
 
     /**

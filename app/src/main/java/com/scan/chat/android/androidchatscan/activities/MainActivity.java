@@ -45,7 +45,6 @@ public class MainActivity extends Activity  implements UserLoginInterface {
     // UI references.
     public static EditText mPasswordView;
     private AutoCompleteTextView mUsernameView;
-    public static View mProgressView;
     public static View mLoginFormView;
     private Button mSignInButton;
     private TextView mNoAccountLink;
@@ -118,8 +117,7 @@ public class MainActivity extends Activity  implements UserLoginInterface {
         });
 
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar_login);
     }
 
     @Override
