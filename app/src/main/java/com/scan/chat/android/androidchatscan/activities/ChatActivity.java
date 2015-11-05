@@ -27,12 +27,14 @@ import android.widget.Toast;
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.interfaces.LoadMessagesInterface;
 import com.scan.chat.android.androidchatscan.interfaces.UserSendInterface;
+import com.scan.chat.android.androidchatscan.models.Attachment;
 import com.scan.chat.android.androidchatscan.models.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -45,10 +47,11 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
     private LoadMessagesTask loadMessagesTask;
     private UserSendInterface sendInterface;
     public static Activity mChatActivity;
-    private String message;
-    private String encodedImage;
+    //private String message;
+    //private String encodedImage;
     private String username;
     private String auth;
+    private Message messageToSend;
 
     // UI references.
     public static EditText mMessageText;
@@ -74,7 +77,6 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
 
         // Set up and execute loadMessagesTask via interface.
         listViewMessages = (ListView) findViewById(R.id.ListMessage);
-        auth = sPrefs.getString("auth", null);
         loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
         loadMessagesTask.execute(auth);
 
@@ -161,15 +163,18 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            String encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+            //create an attachment containing image to send
+            Attachment att = new Attachment(encodedImage);
 
             // Make the user confirm he wants to send the picture, and make him add a message
-            message = "";
+            String message = "";
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Send an image");
 
-            // Set up the input
+            // Set up the input, to make the user able to add a text message to his image
             final EditText input = new EditText(this);
 
             // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
@@ -177,13 +182,18 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
             builder.setView(input);
             builder.setMessage("add a message: ");
 
+            //build a message type
+            messageToSend = new Message(UUID.randomUUID().toString(),username,message);
+            messageToSend.addAttachment(att);
+
             // Set up the buttons
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    message = input.getText().toString();
-                    userSendTask = new UserSendTask(true, sendInterface);
-                    userSendTask.execute(message, encodedImage, username, auth);
+                    //send message
+                    messageToSend.setMessage(input.getText().toString());
+                    userSendTask = new UserSendTask(messageToSend, sendInterface);
+                    userSendTask.execute(auth);
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -237,6 +247,10 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
      */
     private void openGalleryAndSend()
     {
+        if (userSendTask != null && userSendTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            userSendTask.cancel(true);
+        }
+
         /*Intent i = new Intent(
                 Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -248,15 +262,18 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        String encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+        //create an attachment containing image to send
+        Attachment att = new Attachment(encodedImage);
 
         // Make the user confirm he wants to send the picture, and make him add a message
-        message = "";
+        String message = "";
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Send an image");
 
-        // Set up the input
+        // Set up the input, to make the user able to add a text message to his image
         final EditText input = new EditText(this);
 
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
@@ -264,13 +281,18 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         builder.setView(input);
         builder.setMessage("add a message: ");
 
+        //build a message type
+        messageToSend = new Message(UUID.randomUUID().toString(),username,message);
+        messageToSend.addAttachment(att);
+
         // Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                message = input.getText().toString();
-                userSendTask = new UserSendTask(true, sendInterface);
-                userSendTask.execute(message, encodedImage, username, auth);
+                //send message
+                messageToSend.setMessage(input.getText().toString());
+                userSendTask = new UserSendTask(messageToSend, sendInterface);
+                userSendTask.execute(auth);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -295,12 +317,14 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
             userSendTask.cancel(true);
         }
 
-        // Get message string from editview
         String message = mMessageText.getText().toString();
 
+        //create message
+        messageToSend = new Message(UUID.randomUUID().toString(),username,message);
+
         // Execute asynchronus task to send message
-        userSendTask = new UserSendTask(false, sendInterface);
-        userSendTask.execute(message, null, username, auth);
+        userSendTask = new UserSendTask(messageToSend, sendInterface);
+        userSendTask.execute(auth);
     }
 
     @Override

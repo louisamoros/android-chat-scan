@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import com.scan.chat.android.androidchatscan.interfaces.UserSendInterface;
-import com.scan.chat.android.androidchatscan.models.Attachment;
 import com.scan.chat.android.androidchatscan.models.Message;
 
 import java.io.BufferedReader;
@@ -18,28 +17,29 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.UUID;
 
 /**
  * Represents an asynchronous message sending task
  */
 public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
-    private boolean img;    //true if image must be attached
+    private Message message;    //true if image must be attached
     private UserSendInterface activityInterface;
 
-    public UserSendTask(boolean img, UserSendInterface activityInterface) {
-        this.img = img;
+    public UserSendTask(Message message, UserSendInterface activityInterface) {
+        this.message = message;
         this.activityInterface = activityInterface;
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
 
-        String message = params[0];
-        String encodedImage = params[1];
-        String username = params[2];
-        String auth = params[3];
+        if(message.getId() == null || message.getLogin() == null || message.getMessage() == null){
+            //set flag
+            return false;
+        }
+
+        String auth = params[0];
 
         String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
         OutputStreamWriter writer = null;
@@ -47,17 +47,7 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
         HttpURLConnection conn = null;
 
         // Put empty images string array for the constructor
-        String images[] = new String[1];
-
-        // Create message to send
-        Message mess = new Message(UUID.randomUUID().toString(),username,message,images);
-
-        // Add image to message if required
-        if(img)
-        {
-            Attachment att = new Attachment(encodedImage);
-            mess.addAttachment(att);
-        }
+        message.setImages(new String[1]);
 
         //http request process
         try {
@@ -77,7 +67,7 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
             //create gson models
             Type type = new TypeToken<Message>() {}.getType();
-            String gsonString = new Gson().toJson(mess,type);
+            String gsonString = new Gson().toJson(message,type);
 
             conn.setFixedLengthStreamingMode(gsonString.length());
             conn.connect();
