@@ -46,13 +46,13 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         // Webservice URL
         String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/connect/").toString();
 
-        //instantiate user and get auth
+        // Instantiate user and get auth
         user = new User(username,password);
         basicAuth = user.getEncodedBase64();
 
         try {
 
-            //authentification
+            // Authentication
             URL imageUrl = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
             conn.setRequestProperty("Authorization", basicAuth);
@@ -65,10 +65,11 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
             int response = conn.getResponseCode();
 
-            if (response == 200)
+            if (response == 200) {
                 return true;
+            }
         } catch (IOException e) {
-            //set flag
+            // Set flag
         }
 
         return false;
@@ -76,7 +77,7 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        //stop showing loading animation and make sure the user object is no longer referenced
+        // Stop showing loading animation and make sure the user object is no longer referenced
         showProgress(false);
         user = null;
 

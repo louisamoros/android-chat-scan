@@ -16,17 +16,18 @@ import com.scan.chat.android.androidchatscan.models.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadImageTask;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by louis on 10/30/15.
  */
 public class MessageAdapter extends ArrayAdapter<Message> {
 
-    Context context;
-    int layoutResourceId;
-    ArrayList<Message> listMessages = null;
+    private Context context;
+    private int layoutResourceId;
+    private List<Message> listMessages = null;
 
-    public MessageAdapter(Context context, int layoutResourceId, ArrayList<Message> listMessages) {
+    public MessageAdapter(Context context, int layoutResourceId, List<Message> listMessages) {
         super(context, layoutResourceId, listMessages);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
@@ -36,7 +37,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        MessageHolder holder = null;
+        MessageHolder holder;
 
         // Get current message in the list
         Message message = listMessages.get(position);

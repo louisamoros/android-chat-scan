@@ -18,20 +18,27 @@ import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.interfaces.LoadMessagesInterface;
+import com.scan.chat.android.androidchatscan.models.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 
-public class ChatActivity extends Activity{
+public class ChatActivity extends Activity implements LoadMessagesInterface{
 
-    public static ListView listMessage;
+    private ListView listViewMessages;
     private static int RESULT_LOAD_IMAGE = 1;
     public static Activity mChatActivity;
 
@@ -39,11 +46,12 @@ public class ChatActivity extends Activity{
     private LoadMessagesTask loadMessagesTask;
     private String message;
     private String encodedImage;
+    private String auth;
 
     // UI references.
     public static EditText mMessageText;
     private ImageButton mSendButton;
-    public static SwipeRefreshLayout mSwipeRefreshLayout;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,30 +61,29 @@ public class ChatActivity extends Activity{
         mChatActivity = this;
 
         // Load theme
-        SharedPreferences prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        int theme = prefs.getInt("theme", 0);
+        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        int theme = sPrefs.getInt("theme", 0);
         mChatActivity.setTheme(loadTheme(theme));
 
         setContentView(R.layout.activity_chat);
 
-        // List view setup
-        listMessage = (ListView) findViewById(R.id.ListMessage);
+        // Set up and execute loadMessagesTask via interface.
+        listViewMessages = (ListView) findViewById(R.id.ListMessage);
+        auth = sPrefs.getString("auth", null);
+        loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
+        loadMessagesTask.execute(auth);
 
-        // Call task to load messages
-        loadMessagesTask = new LoadMessagesTask(mChatActivity);
-        loadMessagesTask.execute();
-
-        // Get the "pull to refresh" view and define its behavior
+        // Get the "pull to refresh" view and define its behavior.
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadMessagesTask = new LoadMessagesTask(mChatActivity);
-                loadMessagesTask.execute();
+                loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
+                loadMessagesTask.execute(auth);
             }
         });
 
-        // Set 'send message' button
+        // Set 'send message' button.
         mMessageText = (EditText) findViewById(R.id.EditText);
         mSendButton = (ImageButton) findViewById(R.id.Button);
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -184,6 +191,21 @@ public class ChatActivity extends Activity{
         }
     }
 
+
+    @Override
+    public void onLoadMessagesSuccess(List<Message> listMessages) {
+        // Set the adapter
+        ArrayAdapter<Message> adapter = new ArrayAdapter<>(ChatActivity.this, android.R.layout.simple_list_item_1, listMessages);
+        listViewMessages.setAdapter(adapter);
+
+        // Stop the animation after all the messages are fully loaded
+        ChatActivity.this.mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onLoadMessageFailure(String error) {
+        Toast.makeText(ChatActivity.this, error, LENGTH_LONG).show();
+    }
 
     /**
      * return a int value according to the given theme

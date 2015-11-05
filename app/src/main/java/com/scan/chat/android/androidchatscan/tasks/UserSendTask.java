@@ -129,8 +129,8 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
             Toast.makeText(mContext, R.string.sent_success, LENGTH_LONG).show();
             ChatActivity.mMessageText.setText("");
             //load messages if success
-            loadUserTask = new LoadMessagesTask(mContext);
-            loadUserTask.execute();
+//            loadUserTask = new LoadMessagesTask(mContext);
+//            loadUserTask.execute();
         }
         else {
             Toast.makeText(mContext, R.string.sent_failed, LENGTH_LONG).show();
