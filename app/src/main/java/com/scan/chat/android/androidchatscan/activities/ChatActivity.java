@@ -2,6 +2,7 @@ package com.scan.chat.android.androidchatscan.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
 import android.util.Base64;
@@ -19,9 +21,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
@@ -278,8 +283,10 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
 
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setHint("enter your text here");
         builder.setView(input);
-        builder.setMessage("add a message: ");
+        //builder.setIcon(getDrawable(R.mipmap.ic_send_image));
+        builder.setMessage("Want to add a text ?");
 
         //build a message type
         messageToSend = new Message(UUID.randomUUID().toString(),username,message);
@@ -302,7 +309,6 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
             }
         });
         builder.show();
-
 
     }
 
