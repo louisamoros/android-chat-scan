@@ -34,11 +34,25 @@
                 android:layout_alignParentLeft="true"
                 />
 
+            <ProgressBar
+                android:id="@+id/card_view_image_loader"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_below="@+id/card_view_message"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"/>
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/card_view_image"
                 android:layout_alignParentLeft="true"
+                android:layout_below="@+id/card_view_message"
                 />
 
         </RelativeLayout>
