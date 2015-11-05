@@ -62,10 +62,11 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
+
         if (success)
             activityInterface.onLoadMessagesSuccess(listMessages);
         else
             activityInterface.onLoadMessageFailure("Fail to load messages.");
-    }
 
+    }
 }
