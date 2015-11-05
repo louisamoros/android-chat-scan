@@ -72,13 +72,13 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
     protected void onPostExecute(final Boolean success) {
         if (success) {
             // Set the adapter
-            MessageAdapter adapter = new MessageAdapter(ChatActivity.mChatActivity, R.layout.message_row, allMessages);
+            MessageAdapter adapter = new MessageAdapter(mContext, R.layout.message_row, allMessages);
             ChatActivity.listMessage.setAdapter(adapter);
 
             // Stop the animation after all the messages are fully loaded
             ChatActivity.mSwipeRefreshLayout.setRefreshing(false);
         } else {
-            Toast.makeText(ChatActivity.mChatActivity, "Something went wrong.", LENGTH_LONG).show();
+            Toast.makeText(mContext, "Something went wrong.", LENGTH_LONG).show();
         }
     }
 }

@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +37,7 @@ public class MainActivity extends Activity  implements UserLoginInterface {
 
     // Keep track of the login task to ensure we can cancel it if requested.
     private UserLoginTask userLoginTask = null;
-    public static UserLoginInterface mLoginActivity;
+    public static UserLoginInterface activityInterface;
 
     private String username;
     private String password;
@@ -48,6 +49,7 @@ public class MainActivity extends Activity  implements UserLoginInterface {
     public static View mLoginFormView;
     private Button mSignInButton;
     private TextView mNoAccountLink;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,7 @@ public class MainActivity extends Activity  implements UserLoginInterface {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mLoginActivity = this;
+        activityInterface = this;
 
         // First check if there is a user already connected
         // in this case, we can directly go to chat activity
@@ -117,6 +119,7 @@ public class MainActivity extends Activity  implements UserLoginInterface {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
     }
 
     @Override
@@ -176,7 +179,8 @@ public class MainActivity extends Activity  implements UserLoginInterface {
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isConnected()) {
                 // everything is good so far
-                userLoginTask = new UserLoginTask(mLoginActivity);
+                userLoginTask = new UserLoginTask(activityInterface);
+                progressBar.setVisibility(View.VISIBLE);
                 userLoginTask.execute(username, password);
             }
             else{
@@ -184,9 +188,8 @@ public class MainActivity extends Activity  implements UserLoginInterface {
             }
         }
     }
-
     @Override
-    public void onSuccess(String basicAuth) {
+    public void onLoginSuccess(String basicAuth) {
         // Everything good!
         Toast.makeText(MainActivity.this, R.string.login_success, LENGTH_LONG).show();
 
@@ -201,6 +204,9 @@ public class MainActivity extends Activity  implements UserLoginInterface {
         editor.putString("auth", basicAuth);
         editor.commit();
 
+        //make the spinner disappear
+        progressBar.setVisibility(View.GONE);
+
         // Start activity
         startActivity(intent);
         // we don't want the current activity to be in the backstack,
@@ -208,7 +214,9 @@ public class MainActivity extends Activity  implements UserLoginInterface {
     }
 
     @Override
-    public void onFailure() {
+    public void onLoginFailure() {
+        //make the spinner disappear
+        progressBar.setVisibility(View.GONE);
         Toast.makeText(MainActivity.this, R.string.login_error, LENGTH_LONG).show();
     }
 }

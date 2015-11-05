@@ -4,16 +4,12 @@ package com.scan.chat.android.androidchatscan.tasks;
  * Created by guillaumenostrenoff on 15/10/15.
  */
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
+import com.scan.chat.android.androidchatscan.interfaces.UserSendInterface;
 import com.scan.chat.android.androidchatscan.models.Attachment;
 import com.scan.chat.android.androidchatscan.models.Message;
 
@@ -24,23 +20,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
 
-import static android.widget.Toast.LENGTH_LONG;
-
 /**
  * Represents an asynchronous message sending task
  */
 public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
     private boolean img;    //true if image must be attached
+    private UserSendInterface activityInterface;
     private String username;
     private String auth;
-    private Context mContext;
     private LoadMessagesTask loadUserTask;
 
-    public UserSendTask(boolean img, Context context) {
+    public UserSendTask(boolean img, UserSendInterface activityInterface) {
         this.img = img;
-        this.mContext = context;
-
+        this.activityInterface = activityInterface;
     }
 
     @Override
@@ -48,16 +41,13 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
         String message = params[0];
         String encodedImage = params[1];
+        String username = params[2];
+        String auth = params[3];
 
         String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
         OutputStreamWriter writer = null;
         BufferedReader reader = null;
         HttpURLConnection conn = null;
-
-        //get user info from sharedPreferences
-        SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        username = sPrefs.getString("username", null);
-        auth = sPrefs.getString("auth", null);
 
         // Put empty images string array for the constructor
         String images[] = new String[1];
@@ -124,16 +114,9 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
 
-        if (success) {
-            //display success message and clear text input field
-            Toast.makeText(mContext, R.string.sent_success, LENGTH_LONG).show();
-            ChatActivity.mMessageText.setText("");
-            //load messages if success
-            loadUserTask = new LoadMessagesTask(mContext);
-            loadUserTask.execute();
-        }
-        else {
-            Toast.makeText(mContext, R.string.sent_failed, LENGTH_LONG).show();
-        }
+        if (success)
+            activityInterface.onSendSuccess();
+        else
+            activityInterface.onSendFailure();
     }
 }

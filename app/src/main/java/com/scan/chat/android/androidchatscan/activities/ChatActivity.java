@@ -21,22 +21,27 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.interfaces.UserSendInterface;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
 
 import java.io.ByteArrayOutputStream;
 
+import static android.widget.Toast.LENGTH_LONG;
 
-public class ChatActivity extends Activity{
+
+public class ChatActivity extends Activity implements UserSendInterface{
 
     public static ListView listMessage;
     private static int RESULT_LOAD_IMAGE = 1;
-    public static Activity mChatActivity;
 
     private UserSendTask userSendTask;
     private LoadMessagesTask loadMessagesTask;
+    private UserSendInterface sendInterface;
+    public static Activity mChatActivity;
     private String message;
     private String encodedImage;
 
@@ -50,12 +55,13 @@ public class ChatActivity extends Activity{
         super.onCreate(savedInstanceState);
 
         // Keep a reference to this activity to be able to finish it from another entity
+        sendInterface = this;
         mChatActivity = this;
 
         // Load theme
         SharedPreferences prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         int theme = prefs.getInt("theme", 0);
-        mChatActivity.setTheme(loadTheme(theme));
+        setTheme(loadTheme(theme));
 
         setContentView(R.layout.activity_chat);
 
@@ -108,7 +114,7 @@ public class ChatActivity extends Activity{
                 return true;
 
             case R.id.action_settings:
-                Intent settingsActivity = new Intent(mChatActivity, SettingsActivity.class);
+                Intent settingsActivity = new Intent(ChatActivity.this, SettingsActivity.class);
                 startActivity(settingsActivity);
                 return true;
 
@@ -118,7 +124,7 @@ public class ChatActivity extends Activity{
                 SharedPreferences.Editor editor = sPrefs.edit();
                 editor.clear();
                 editor.commit();
-                Intent mainActivity = new Intent(mChatActivity, MainActivity.class);
+                Intent mainActivity = new Intent(ChatActivity.this, MainActivity.class);
                 startActivity(mainActivity);
                 // We don't want the current activity to be in the backstack,
                 finish();
@@ -154,11 +160,11 @@ public class ChatActivity extends Activity{
             // Make the user confirm he wants to send the picture, and make him add a message
             message = "";
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(mChatActivity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Send an image");
 
             // Set up the input
-            final EditText input = new EditText(mChatActivity);
+            final EditText input = new EditText(this);
 
             // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
             input.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -170,7 +176,7 @@ public class ChatActivity extends Activity{
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     message = input.getText().toString();
-                    userSendTask = new UserSendTask(true, mChatActivity);
+                    userSendTask = new UserSendTask(true, sendInterface);
                     userSendTask.execute(message, encodedImage);
                 }
             });
@@ -231,9 +237,26 @@ public class ChatActivity extends Activity{
         // Get message string from editview
         String message = mMessageText.getText().toString();
 
+        //get user infos from sharedPreferences
+        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        String username = sPrefs.getString("username", null);
+        String auth = sPrefs.getString("auth", null);
+
         // Execute asynchronus task to send message
-        userSendTask = new UserSendTask(false, mChatActivity);
-        userSendTask.execute(message, null);
+        userSendTask = new UserSendTask(false, sendInterface);
+        userSendTask.execute(message, null, username, auth);
     }
 
+    @Override
+    public void onSendSuccess() {
+        //display success message and clear text input field
+        Toast.makeText(ChatActivity.this, R.string.sent_success, LENGTH_LONG).show();
+        ChatActivity.mMessageText.setText("");
+        //load messages if success
+    }
+
+    @Override
+    public void onSendFailure() {
+        Toast.makeText(ChatActivity.this, R.string.sent_failed, LENGTH_LONG).show();
+    }
 }

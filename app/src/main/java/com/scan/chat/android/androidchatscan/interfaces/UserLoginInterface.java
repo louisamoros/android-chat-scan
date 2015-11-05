@@ -5,6 +5,6 @@ package com.scan.chat.android.androidchatscan.interfaces;
  */
 public interface UserLoginInterface {
 
-    public void onSuccess(String basicAuth);
-    public void onFailure();
+    public void onLoginSuccess(String basicAuth);
+    public void onLoginFailure();
 }
