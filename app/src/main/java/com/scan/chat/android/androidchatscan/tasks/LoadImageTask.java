@@ -13,9 +13,6 @@ import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by louis on 11/2/15.
- */
 public class LoadImageTask extends AsyncTask<String, Void, Bitmap>{
 
     private Context mContext;

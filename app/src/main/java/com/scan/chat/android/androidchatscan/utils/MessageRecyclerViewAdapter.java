@@ -2,6 +2,7 @@ package com.scan.chat.android.androidchatscan.utils;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.scan.chat.android.androidchatscan.R;
 import com.scan.chat.android.androidchatscan.models.Message;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -37,14 +39,16 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
         if(listMessages.get(position).isMine(context)) {
             messageViewHolder.cardViewLogin.setTextColor(Color.BLACK);
             messageViewHolder.cardViewMessage.setTextColor(Color.BLACK);
+            Uri uri = Uri.parse("http://www.gettyimages.co.uk/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg");
+            Picasso.with(context)
+                    .load(uri)
+                    .into(messageViewHolder.cardViewImage);
         } else {
             messageViewHolder.cardViewLogin.setTextColor(Color.BLUE);
             messageViewHolder.cardViewMessage.setTextColor(Color.BLUE);
         }
         messageViewHolder.cardViewLogin.setText(listMessages.get(position).getLogin());
         messageViewHolder.cardViewMessage.setText(listMessages.get(position).getMessage());
-//        new LoadImageTask(messageViewHolder.cardViewImage, context).execute("http://www.gettyimages.co.uk/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg");
-//        messageViewHolder.cardViewImage.setImageResource("http://www.gettyimages.co.uk/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg");
     }
 
     @Override

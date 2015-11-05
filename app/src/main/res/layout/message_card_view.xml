@@ -34,14 +34,12 @@
                 android:layout_alignParentLeft="true"
                 />
 
-            <!--<ImageView-->
-            <!--android:layout_width="100dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/card_view_image"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_marginRight="16dp"-->
-            <!--/>-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/card_view_image"
+                android:layout_alignParentLeft="true"
+                />
 
         </RelativeLayout>
 
