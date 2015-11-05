@@ -3,6 +3,8 @@
     <!-- common -->
     <color name="black">#000000</color>
     <color name="white">#ffffffff</color>
+    <color name="light_gray">#E5E5EA</color>
+    <color name="light_yellow">#FFD13C</color>
 
     <!-- color default theme -->
     <color name="action_bar_background0">#ac2325</color>

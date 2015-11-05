@@ -4,70 +4,50 @@ package com.scan.chat.android.androidchatscan.tasks;
  * Created by guillaumenostrenoff on 15/10/15.
  */
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
-import com.scan.chat.android.androidchatscan.model.Attachment;
-import com.scan.chat.android.androidchatscan.model.Message;
+import com.scan.chat.android.androidchatscan.interfaces.UserSendInterface;
+import com.scan.chat.android.androidchatscan.models.Message;
 
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.UUID;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 /**
  * Represents an asynchronous message sending task
  */
 public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
-    private boolean img;    //true if image must be attached
-    private String username;
-    private String auth;
-    private Context mContext;
-    private LoadMessagesTask loadUserTask;
+    private Message message;    //true if image must be attached
+    private UserSendInterface activityInterface;
 
-    public UserSendTask(boolean img, Context context) {
-        this.img = img;
-        this.mContext = context;
-
+    public UserSendTask(Message message, UserSendInterface activityInterface) {
+        this.message = message;
+        this.activityInterface = activityInterface;
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
 
-        String message = params[0];
-        String encodedImage = params[1];
+        if(message.getId() == null || message.getLogin() == null || message.getMessage() == null){
+            //set flag
+            return false;
+        }
+
+        String auth = params[0];
 
         String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages/").toString();
         OutputStreamWriter writer = null;
         BufferedReader reader = null;
         HttpURLConnection conn = null;
 
-        //get user info from sharedPreferences
-        SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        username = sPrefs.getString("username", null);
-        auth = sPrefs.getString("auth", null);
-
-        //create message to send
-        Message mess = new Message(UUID.randomUUID().toString(),username,message);
-
-        //add image to message if required
-        if(img)
-        {
-            Attachment att = new Attachment(encodedImage);
-            mess.addAttachment(att);
-        }
+        // Put empty images string array for the constructor
+        message.setImages(new String[1]);
 
         //http request process
         try {
@@ -75,7 +55,7 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
             URL imageUrl = new URL(urlString);
             conn = (HttpURLConnection) imageUrl.openConnection();
 
-            //authentification
+            //authentication
             conn.setRequestProperty("Authorization", auth);
             //json post type request
             conn.setRequestProperty("Content-Type", "application/json");
@@ -85,9 +65,9 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
             conn.setDoOutput(true);
             conn.setDoInput(true);
 
-            //create gson model
+            //create gson models
             Type type = new TypeToken<Message>() {}.getType();
-            String gsonString = new Gson().toJson(mess,type);
+            String gsonString = new Gson().toJson(message,type);
 
             conn.setFixedLengthStreamingMode(gsonString.length());
             conn.connect();
@@ -120,23 +100,11 @@ public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        //sendTask = null;
 
-        if (success) {
-            //display success message and clear text input field
-            Toast.makeText(mContext, R.string.sent_success, LENGTH_LONG).show();
-            ChatActivity.mMessageText.setText("");
-            //load messages if success
-            loadUserTask = new LoadMessagesTask(mContext);
-            loadUserTask.execute();
-        }
-        else {
-            Toast.makeText(mContext, R.string.sent_failed, LENGTH_LONG).show();
-        }
-    }
+        if (success)
+            activityInterface.onSendSuccess();
+        else
+            activityInterface.onSendFailure();
 
-    @Override
-    protected void onCancelled() {
-        //sendTask = null;
     }
 }

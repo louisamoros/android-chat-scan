@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.model;
+package com.scan.chat.android.androidchatscan.models;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,6 +17,8 @@ public class Message {
     private String login;
     private String message;
     private List<Attachment> attachments;
+
+    private String images[];
 
     public Message(String id, String login, String message) {
         this.uuid = id;
@@ -41,7 +43,7 @@ public class Message {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(String message){
         this.message = message;
     }
 
@@ -50,15 +52,25 @@ public class Message {
         attachments.add(attachment);
     }
 
+    public String[] getImages() {
+        return images;
+    }
+
+    public void setImages(String images[]){
+        this.images = images;
+    }
+
     /**
      * return true if this message comes from the user
      * @param context current context
      */
     public boolean isMine(Context context){
         SharedPreferences sprefs = context.getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        if(sprefs.getString("username", null).equals(login))
+        if(sprefs.getString("username", null).equals(login)) {
             return true;
-        return false;
+        } else {
+            return false;
+        }
     }
 
 }

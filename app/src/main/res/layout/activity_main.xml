@@ -15,6 +15,13 @@
         android:layout_height="300dp"
         android:orientation="vertical">
 
+        <ProgressBar
+            android:id="@+id/progress_bar_login"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
         <!-- Application name with special font -->
         <TextView
             android:layout_width="match_parent"

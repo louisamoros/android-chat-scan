@@ -2,6 +2,8 @@ package com.scan.chat.android.androidchatscan.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,44 +14,52 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.interfaces.UserRegisterInterface;
+import com.scan.chat.android.androidchatscan.models.User;
 import com.scan.chat.android.androidchatscan.tasks.UserRegisterTask;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 /**
  * A login screen that offers login via username/password.
  */
-public class RegisterActivity extends Activity{
+public class RegisterActivity extends Activity implements UserRegisterInterface{
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserRegisterTask userRegisterTask = null;
-    public static Activity mRegisterActivity;
+    private UserRegisterInterface activityInterface;
+    private String username;
+    private String password;
 
     // UI references.
-    public static View mProgressView;
     public static View mLoginFormView;
     private EditText mUsernameView;
     private EditText mPasswordView;
     private EditText mPasswordConfirmView;
     private Button mRegisterButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        mRegisterActivity = this;
-
         // Title with special font
         TextView textViewLoginTitle =(TextView)findViewById(R.id.text_view_register_title);
         Typeface face=Typeface.createFromAsset(getAssets(), "fonts/kaushanscriptregular-font.otf");
         textViewLoginTitle.setTypeface(face);
 
+        activityInterface = this;
+
         // Hide action bar
-        ActionBar actionBar = mRegisterActivity.getActionBar();
+        ActionBar actionBar =getActionBar();
         actionBar.hide();
 
         // Set up the register form.
@@ -57,7 +67,7 @@ public class RegisterActivity extends Activity{
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordConfirmView = (EditText) findViewById(R.id.password_confirmation);
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar_register);
 
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -96,8 +106,8 @@ public class RegisterActivity extends Activity{
         mPasswordConfirmView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        username = mUsernameView.getText().toString();
+        password = mPasswordView.getText().toString();
         String passwordConfirm = mPasswordConfirmView.getText().toString();
 
         boolean cancel = false;
@@ -139,10 +149,40 @@ public class RegisterActivity extends Activity{
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            //showProgress(true);
-            userRegisterTask = new UserRegisterTask(mRegisterActivity);
+            progressBar.setVisibility(View.VISIBLE);
+            userRegisterTask = new UserRegisterTask(activityInterface);
             userRegisterTask.execute(username, password);
         }
+    }
+
+
+    @Override
+    public void onRegisterSuccess(User newUser) {
+        // Everything good!
+        progressBar.setVisibility(View.GONE);
+        Toast.makeText(RegisterActivity.this, R.string.register_success, LENGTH_LONG).show();
+
+        // Declare activity switch intent
+        Intent intent = new Intent(RegisterActivity.this, ChatActivity.class);
+
+        // save username and password using a shared preference
+        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        SharedPreferences.Editor editor = sPrefs.edit();
+        editor.putString("username", username);
+        editor.putString("password", password);
+        editor.putString("auth", newUser.getEncodedBase64());
+        editor.commit();
+
+        // Start activity
+        startActivity(intent);
+        // we don't want the current activity to be in the backstack,
+        finish();
+    }
+
+    @Override
+    public void onRegisterFailure() {
+        progressBar.setVisibility(View.GONE);
+        Toast.makeText(RegisterActivity.this, R.string.register_error, LENGTH_LONG).show();
     }
 }
 

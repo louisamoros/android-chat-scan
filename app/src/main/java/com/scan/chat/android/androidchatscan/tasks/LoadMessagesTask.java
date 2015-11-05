@@ -1,17 +1,12 @@
 package com.scan.chat.android.androidchatscan.tasks;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.scan.chat.android.androidchatscan.R;
-import com.scan.chat.android.androidchatscan.activities.ChatActivity;
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
-import com.scan.chat.android.androidchatscan.model.Message;
-import com.scan.chat.android.androidchatscan.model.MessageAdapter;
+import com.scan.chat.android.androidchatscan.interfaces.LoadMessagesInterface;
+import com.scan.chat.android.androidchatscan.models.Message;
 
 import org.apache.commons.io.IOUtils;
 
@@ -19,33 +14,29 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-
-import static android.widget.Toast.LENGTH_LONG;
+import java.util.List;
 
 public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
 
-    private Context mContext;
-    private ArrayList<Message> allMessages;
+    private LoadMessagesInterface activityInterface;
+    private List<Message> listMessages;
+    private String basicAuth;
 
-    public LoadMessagesTask(Context context){
-        this.mContext = context;
+    public LoadMessagesTask(LoadMessagesInterface activityInterface){
+        this.activityInterface = activityInterface;
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
 
-        // Get user info from sharedPreferences
-        SharedPreferences sPrefs = mContext.getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        String auth = sPrefs.getString("auth", null);
+        basicAuth = params[0];
 
         try {
-            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=10&offset=20")
+            String urlString = new StringBuilder(MainActivity.API_BASE_URL + "/messages?&limit=100&offset=20")
                     .toString();
             URL imageUrl = new URL(urlString);
-
             HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
-            conn.setRequestProperty("Authorization", auth);
+            conn.setRequestProperty("Authorization", basicAuth);
             conn.setConnectTimeout(30000);
             conn.setReadTimeout(30000);
             conn.setRequestMethod("GET");
@@ -55,28 +46,26 @@ public class LoadMessagesTask extends AsyncTask<String, Void, Boolean> {
             int response = conn.getResponseCode();
 
             if(response == 200) {
-                Type type = new TypeToken<ArrayList<Message>>() {}.getType();
+                Type type = new TypeToken<List<Message>>() {}.getType();
                 String isToString = IOUtils.toString(conn.getInputStream(), "UTF-8");
-                allMessages = new Gson().fromJson(isToString, type);
+                listMessages = new Gson().fromJson(isToString, type);
                 return true;
             }
         }
         catch(IOException e){
-            Toast.makeText(mContext, e.getMessage(), LENGTH_LONG).show();
+            // Set flag
         }
+
         return false;
     }
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        if (success) {
-            // Set the adapter
-            MessageAdapter adapter = new MessageAdapter(mContext, R.layout.message_row, allMessages);
-            ChatActivity.listMessage.setAdapter(adapter);
-            // Stop the animation after all the messages are fully loaded
-            ChatActivity.mSwipeRefreshLayout.setRefreshing(false);
-        } else {
-            Toast.makeText(mContext, "Something went wrong.", LENGTH_LONG).show();
-        }
+
+        if (success)
+            activityInterface.onLoadMessagesSuccess(listMessages);
+        else
+            activityInterface.onLoadMessageFailure("Fail to load messages.");
+
     }
 }

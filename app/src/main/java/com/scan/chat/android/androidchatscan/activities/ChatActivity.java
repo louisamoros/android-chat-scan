@@ -13,6 +13,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Base64;
 import android.view.Menu;
@@ -20,31 +22,38 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
+import com.scan.chat.android.androidchatscan.interfaces.LoadMessagesInterface;
+import com.scan.chat.android.androidchatscan.interfaces.UserSendInterface;
+import com.scan.chat.android.androidchatscan.models.Attachment;
+import com.scan.chat.android.androidchatscan.models.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
+import com.scan.chat.android.androidchatscan.utils.MessageRecyclerViewAdapter;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.UUID;
 
+import static android.widget.Toast.LENGTH_LONG;
 
-public class ChatActivity extends Activity {
+public class ChatActivity extends Activity implements UserSendInterface, LoadMessagesInterface {
 
-    public static ListView listMessage;
     private static int RESULT_LOAD_IMAGE = 1;
-    protected static Activity mChatActivity;
-
+    public static Activity mChatActivity;
     private UserSendTask userSendTask;
     private LoadMessagesTask loadMessagesTask;
-    private String message;
-    private String encodedImage;
-
+    private String username;
+    private String auth;
+    private Message messageToSend;
 
     // UI references.
     public static EditText mMessageText;
     private ImageButton mSendButton;
-    public static SwipeRefreshLayout mSwipeRefreshLayout;
+    private RecyclerView recyclerView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,31 +62,35 @@ public class ChatActivity extends Activity {
         // Keep a reference to this activity to be able to finish it from another entity
         mChatActivity = this;
 
-        // Load theme
-        SharedPreferences prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        int theme = prefs.getInt("theme", 0);
-        mChatActivity.setTheme(loadTheme(theme));
+        // Get user's infos and load theme
+        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        int theme = sPrefs.getInt("theme", 0);
+        username = sPrefs.getString("username", null);
+        auth = sPrefs.getString("auth", null);
+        setTheme(loadTheme(theme));
 
         setContentView(R.layout.activity_chat);
 
-        // List view setup
-        listMessage = (ListView) findViewById(R.id.ListMessage);
+        // Set up and execute loadMessagesTask via interface.
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(ChatActivity.this);
+        recyclerView.setLayoutManager(llm);
+        auth = sPrefs.getString("auth", null);
+        loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
+        loadMessagesTask.execute(auth);
 
-        // Call task to load messages
-        loadMessagesTask = new LoadMessagesTask(mChatActivity);
-        loadMessagesTask.execute();
-
-        // Get the "pull to refresh" view and define its behavior
+        // Get the "pull to refresh" view and define its behavior.
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadMessagesTask = new LoadMessagesTask(mChatActivity);
-                loadMessagesTask.execute();
+                loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
+                loadMessagesTask.execute(auth);
             }
         });
 
-        // Set 'send message' button
+        // Set 'send message' button.
         mMessageText = (EditText) findViewById(R.id.EditText);
         mSendButton = (ImageButton) findViewById(R.id.Button);
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +99,7 @@ public class ChatActivity extends Activity {
                 onSendMessage();
             }
         });
+
     }
 
     @Override
@@ -105,47 +119,10 @@ public class ChatActivity extends Activity {
         switch (id) {
             case R.id.import_img_button:
                 openGalleryAndSend();
-
-                /*Drawable loul = getResources().getDrawable( R.drawable.ic_launcher);
-                Bitmap imageBitmap = ((BitmapDrawable)loul).getBitmap();
-
-                //get a encode64 image from the bitmap
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
-                message = "";
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Send an image");
-
-                // Set up the input
-                final EditText input = new EditText(this);
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-                builder.setMessage("add a message: ");
-
-                // Set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        message = input.getText().toString();
-                        userSendTask = new UserSendTask(true, ChatActivity.this);
-                        userSendTask.execute(message, encodedImage);
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();*/
                 return true;
 
             case R.id.action_settings:
-                Intent settingsActivity = new Intent(mChatActivity, SettingsActivity.class);
+                Intent settingsActivity = new Intent(ChatActivity.this, SettingsActivity.class);
                 startActivity(settingsActivity);
                 return true;
 
@@ -155,7 +132,7 @@ public class ChatActivity extends Activity {
                 SharedPreferences.Editor editor = sPrefs.edit();
                 editor.clear();
                 editor.commit();
-                Intent mainActivity = new Intent(mChatActivity, MainActivity.class);
+                Intent mainActivity = new Intent(ChatActivity.this, MainActivity.class);
                 startActivity(mainActivity);
                 // We don't want the current activity to be in the backstack,
                 finish();
@@ -186,29 +163,37 @@ public class ChatActivity extends Activity {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            String encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+            //create an attachment containing image to send
+            Attachment att = new Attachment(encodedImage);
 
             // Make the user confirm he wants to send the picture, and make him add a message
-            message = "";
+            String message = "";
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(mChatActivity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Send an image");
 
-            // Set up the input
-            final EditText input = new EditText(mChatActivity);
+            // Set up the input, to make the user able to add a text message to his image
+            final EditText input = new EditText(this);
 
             // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
             input.setInputType(InputType.TYPE_CLASS_TEXT);
             builder.setView(input);
             builder.setMessage("add a message: ");
 
+            //build a message type
+            messageToSend = new Message(UUID.randomUUID().toString(),username,message);
+            messageToSend.addAttachment(att);
+
             // Set up the buttons
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    message = input.getText().toString();
-                    userSendTask = new UserSendTask(true, mChatActivity);
-                    userSendTask.execute(message, encodedImage);
+                    //send message
+                    messageToSend.setMessage(input.getText().toString());
+                    userSendTask = new UserSendTask(messageToSend, ChatActivity.this);
+                    userSendTask.execute(auth);
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -219,6 +204,30 @@ public class ChatActivity extends Activity {
             });
             builder.show();
         }
+    }
+
+    /**
+     * Implemented LoadMessagesTask interface. We update the view here when the task finished to
+     * load messages. On success method.
+     * @param listMessages
+     */
+    @Override
+    public void onLoadMessagesSuccess(List<Message> listMessages) {
+        // Set the adapter
+        MessageRecyclerViewAdapter adapter = new MessageRecyclerViewAdapter(listMessages, ChatActivity.this);
+        recyclerView.setAdapter(adapter);
+
+        // Stop the animation after all the messages are fully loaded
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    /**
+     * Implemented LoadMessagesTask interface. On failure method.
+     * @param error
+     */
+    @Override
+    public void onLoadMessageFailure(String error) {
+        Toast.makeText(ChatActivity.this, error, LENGTH_LONG).show();
     }
 
     /**
@@ -246,11 +255,64 @@ public class ChatActivity extends Activity {
      */
     private void openGalleryAndSend()
     {
+        if (userSendTask != null && userSendTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            userSendTask.cancel(true);
+        }
+
         Intent i = new Intent(
                 Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
         startActivityForResult(i, RESULT_LOAD_IMAGE);
+
+        /*Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.ic_launcher);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        String encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+        //create an attachment containing image to send
+        Attachment att = new Attachment(encodedImage);
+
+        // Make the user confirm he wants to send the picture, and make him add a message
+        String message = "";
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Send an image");
+
+        // Set up the input, to make the user able to add a text message to his image
+        final EditText input = new EditText(this);
+
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setHint("enter your text here");
+        builder.setView(input);
+        //builder.setIcon(getDrawable(R.mipmap.ic_send_image));
+        builder.setMessage("Want to add a text ?");
+
+        //build a message type
+        messageToSend = new Message(UUID.randomUUID().toString(),username,message);
+        messageToSend.addAttachment(att);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //send message
+                messageToSend.setMessage(input.getText().toString());
+                userSendTask = new UserSendTask(messageToSend, ChatActivity.this);
+                userSendTask.execute(auth);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();*/
+
     }
 
 
@@ -264,12 +326,27 @@ public class ChatActivity extends Activity {
             userSendTask.cancel(true);
         }
 
-        // Get message string from editview
         String message = mMessageText.getText().toString();
 
+        //create message
+        messageToSend = new Message(UUID.randomUUID().toString(),username,message);
+
         // Execute asynchronus task to send message
-        userSendTask = new UserSendTask(false, mChatActivity);
-        userSendTask.execute(message, null);
+        userSendTask = new UserSendTask(messageToSend, ChatActivity.this);
+        userSendTask.execute(auth);
+    }
+
+    @Override
+    public void onSendSuccess() {
+        //display success message and clear text input field
+        Toast.makeText(ChatActivity.this, R.string.sent_success, LENGTH_LONG).show();
+        ChatActivity.mMessageText.setText("");
+        //load messages if success
+    }
+
+    @Override
+    public void onSendFailure() {
+        Toast.makeText(ChatActivity.this, R.string.sent_failed, LENGTH_LONG).show();
     }
 
 }

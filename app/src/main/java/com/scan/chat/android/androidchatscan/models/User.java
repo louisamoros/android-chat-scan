@@ -1,4 +1,4 @@
-package com.scan.chat.android.androidchatscan.model;
+package com.scan.chat.android.androidchatscan.models;
 
 import android.util.Base64;
 
@@ -34,7 +34,7 @@ public class User {
 
 
     /**
-     *
+     * calls the encodeToString() method get encoded base 64
      * @return auth
      */
     public String getEncodedBase64()
