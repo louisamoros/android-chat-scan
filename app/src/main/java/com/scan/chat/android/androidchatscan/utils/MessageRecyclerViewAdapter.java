@@ -22,7 +22,6 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
 
     List<Message> listMessages;
     Context context;
-    ProgressBar progressBar;
 
     public MessageRecyclerViewAdapter(List<Message> listMessages, Context context) {
         this.listMessages = listMessages;
@@ -52,29 +51,7 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
             messageViewHolder.cardViewImageLoader.setVisibility(View.VISIBLE);
             Picasso.with(context)
                     .load(images[0])
-                    .into(messageViewHolder.cardViewImage, new ImageLoadedCallback(progressBar) {
-                        @Override
-                        public void onSuccess() {
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
-        }
-    }
-
-    private class ImageLoadedCallback implements Callback {
-
-        public  ImageLoadedCallback(ProgressBar progBar){
-            progressBar = progBar;
-        }
-
-        @Override
-        public void onSuccess() {
-
-        }
-
-        @Override
-        public void onError() {
-
+                    .into(messageViewHolder.cardViewImage);
         }
     }
 
