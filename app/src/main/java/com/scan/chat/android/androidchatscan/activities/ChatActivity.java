@@ -13,12 +13,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -30,6 +31,7 @@ import com.scan.chat.android.androidchatscan.interfaces.UserSendInterface;
 import com.scan.chat.android.androidchatscan.models.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
+import com.scan.chat.android.androidchatscan.utils.MessageRecyclerViewAdapter;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -39,6 +41,7 @@ import static android.widget.Toast.LENGTH_LONG;
 public class ChatActivity extends Activity implements UserSendInterface, LoadMessagesInterface {
 
     private ListView listViewMessages;
+    private RecyclerView recyclerView;
     private static int RESULT_LOAD_IMAGE = 1;
 
     private UserSendTask userSendTask;
@@ -70,7 +73,10 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         setContentView(R.layout.activity_chat);
 
         // Set up and execute loadMessagesTask via interface.
-        listViewMessages = (ListView) findViewById(R.id.ListMessage);
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(ChatActivity.this);
+        recyclerView.setLayoutManager(llm);
         auth = sPrefs.getString("auth", null);
         loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
         loadMessagesTask.execute(auth);
@@ -197,8 +203,10 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
     @Override
     public void onLoadMessagesSuccess(List<Message> listMessages) {
         // Set the adapter
-        ArrayAdapter<Message> adapter = new ArrayAdapter<>(ChatActivity.this, android.R.layout.simple_list_item_1, listMessages);
-        listViewMessages.setAdapter(adapter);
+        MessageRecyclerViewAdapter adapter = new MessageRecyclerViewAdapter(listMessages, ChatActivity.this);
+        recyclerView.setAdapter(adapter);
+//        ArrayAdapter<Message> adapter = new ArrayAdapter<>(ChatActivity.this, android.R.layout.simple_list_item_1, listMessages);
+//        listViewMessages.setAdapter(adapter);
 
         // Stop the animation after all the messages are fully loaded
         mSwipeRefreshLayout.setRefreshing(false);
@@ -265,6 +273,8 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         userSendTask.execute(message, null, username, auth);
     }
 
+
+
     @Override
     public void onSendSuccess() {
         //display success message and clear text input field
@@ -277,4 +287,5 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
     public void onSendFailure() {
         Toast.makeText(ChatActivity.this, R.string.sent_failed, LENGTH_LONG).show();
     }
+
 }
