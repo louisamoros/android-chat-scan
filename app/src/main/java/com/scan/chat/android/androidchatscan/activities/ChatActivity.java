@@ -2,7 +2,6 @@ package com.scan.chat.android.androidchatscan.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,20 +12,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.scan.chat.android.androidchatscan.R;
@@ -36,6 +31,7 @@ import com.scan.chat.android.androidchatscan.models.Attachment;
 import com.scan.chat.android.androidchatscan.models.Message;
 import com.scan.chat.android.androidchatscan.tasks.LoadMessagesTask;
 import com.scan.chat.android.androidchatscan.tasks.UserSendTask;
+import com.scan.chat.android.androidchatscan.utils.MessageRecyclerViewAdapter;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -45,15 +41,10 @@ import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatActivity extends Activity implements UserSendInterface, LoadMessagesInterface {
 
-    private ListView listViewMessages;
     private static int RESULT_LOAD_IMAGE = 1;
-
+    public static Activity mChatActivity;
     private UserSendTask userSendTask;
     private LoadMessagesTask loadMessagesTask;
-    private UserSendInterface sendInterface;
-    public static Activity mChatActivity;
-    //private String message;
-    //private String encodedImage;
     private String username;
     private String auth;
     private Message messageToSend;
@@ -61,6 +52,7 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
     // UI references.
     public static EditText mMessageText;
     private ImageButton mSendButton;
+    private RecyclerView recyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
@@ -68,10 +60,9 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         super.onCreate(savedInstanceState);
 
         // Keep a reference to this activity to be able to finish it from another entity
-        sendInterface = this;
         mChatActivity = this;
 
-        // get user's infos and load theme
+        // Get user's infos and load theme
         SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         int theme = sPrefs.getInt("theme", 0);
         username = sPrefs.getString("username", null);
@@ -81,7 +72,11 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         setContentView(R.layout.activity_chat);
 
         // Set up and execute loadMessagesTask via interface.
-        listViewMessages = (ListView) findViewById(R.id.ListMessage);
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(ChatActivity.this);
+        recyclerView.setLayoutManager(llm);
+        auth = sPrefs.getString("auth", null);
         loadMessagesTask = new LoadMessagesTask(ChatActivity.this);
         loadMessagesTask.execute(auth);
 
@@ -197,7 +192,7 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
                 public void onClick(DialogInterface dialog, int which) {
                     //send message
                     messageToSend.setMessage(input.getText().toString());
-                    userSendTask = new UserSendTask(messageToSend, sendInterface);
+                    userSendTask = new UserSendTask(messageToSend, ChatActivity.this);
                     userSendTask.execute(auth);
                 }
             });
@@ -211,17 +206,25 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         }
     }
 
-
+    /**
+     * Implemented LoadMessagesTask interface. We update the view here when the task finished to
+     * load messages. On success method.
+     * @param listMessages
+     */
     @Override
     public void onLoadMessagesSuccess(List<Message> listMessages) {
         // Set the adapter
-        ArrayAdapter<Message> adapter = new ArrayAdapter<>(ChatActivity.this, android.R.layout.simple_list_item_1, listMessages);
-        listViewMessages.setAdapter(adapter);
+        MessageRecyclerViewAdapter adapter = new MessageRecyclerViewAdapter(listMessages, ChatActivity.this);
+        recyclerView.setAdapter(adapter);
 
         // Stop the animation after all the messages are fully loaded
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
+    /**
+     * Implemented LoadMessagesTask interface. On failure method.
+     * @param error
+     */
     @Override
     public void onLoadMessageFailure(String error) {
         Toast.makeText(ChatActivity.this, error, LENGTH_LONG).show();
@@ -298,7 +301,7 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
             public void onClick(DialogInterface dialog, int which) {
                 //send message
                 messageToSend.setMessage(input.getText().toString());
-                userSendTask = new UserSendTask(messageToSend, sendInterface);
+                userSendTask = new UserSendTask(messageToSend, ChatActivity.this);
                 userSendTask.execute(auth);
             }
         });
@@ -329,7 +332,7 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         messageToSend = new Message(UUID.randomUUID().toString(),username,message);
 
         // Execute asynchronus task to send message
-        userSendTask = new UserSendTask(messageToSend, sendInterface);
+        userSendTask = new UserSendTask(messageToSend, ChatActivity.this);
         userSendTask.execute(auth);
     }
 
@@ -345,4 +348,5 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
     public void onSendFailure() {
         Toast.makeText(ChatActivity.this, R.string.sent_failed, LENGTH_LONG).show();
     }
+
 }

@@ -71,6 +71,8 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/cardview-v7/22.0.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/22.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jacoco" />
@@ -87,13 +89,20 @@
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
+<<<<<<< HEAD
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
+=======
+    <orderEntry type="jdk" jdkName="Android API 22 Platform (1)" jdkType="Android SDK" />
+>>>>>>> 1f4e09dc38edad66bb50b6a931a59724c2e70a1f
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="cardview-v7-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="json_simple-1.1" level="project" />
     <orderEntry type="library" exported="" name="gson-1.7.2" level="project" />
+    <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="commons-io-1.3.2" level="project" />
+    <orderEntry type="library" exported="" name="recyclerview-v7-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="dropbox-android-sdk-1.6.3" level="project" />
   </component>
 </module>
