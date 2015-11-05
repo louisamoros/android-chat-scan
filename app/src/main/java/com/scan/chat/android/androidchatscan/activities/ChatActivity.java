@@ -256,13 +256,13 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
             userSendTask.cancel(true);
         }
 
-        /*Intent i = new Intent(
+        Intent i = new Intent(
                 Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-        startActivityForResult(i, RESULT_LOAD_IMAGE);*/
+        startActivityForResult(i, RESULT_LOAD_IMAGE);
 
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),
+        /*Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),
                 R.drawable.ic_launcher);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -308,7 +308,7 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
                 dialog.cancel();
             }
         });
-        builder.show();
+        builder.show();*/
 
     }
 
