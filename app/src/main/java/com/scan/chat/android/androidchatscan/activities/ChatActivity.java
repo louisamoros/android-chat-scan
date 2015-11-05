@@ -47,6 +47,7 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
     public static Activity mChatActivity;
     private String message;
     private String encodedImage;
+    private String username;
     private String auth;
 
     // UI references.
@@ -62,9 +63,11 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
         sendInterface = this;
         mChatActivity = this;
 
-        // Load theme
+        // get user's infos and load theme
         SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         int theme = sPrefs.getInt("theme", 0);
+        username = sPrefs.getString("username", null);
+        auth = sPrefs.getString("auth", null);
         setTheme(loadTheme(theme));
 
         setContentView(R.layout.activity_chat);
@@ -180,7 +183,7 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
                 public void onClick(DialogInterface dialog, int which) {
                     message = input.getText().toString();
                     userSendTask = new UserSendTask(true, sendInterface);
-                    userSendTask.execute(message, encodedImage);
+                    userSendTask.execute(message, encodedImage, username, auth);
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -234,11 +237,51 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
      */
     private void openGalleryAndSend()
     {
-        Intent i = new Intent(
+        /*Intent i = new Intent(
                 Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-        startActivityForResult(i, RESULT_LOAD_IMAGE);
+        startActivityForResult(i, RESULT_LOAD_IMAGE);*/
+
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.ic_launcher);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+        // Make the user confirm he wants to send the picture, and make him add a message
+        message = "";
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Send an image");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+        builder.setMessage("add a message: ");
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                message = input.getText().toString();
+                userSendTask = new UserSendTask(true, sendInterface);
+                userSendTask.execute(message, encodedImage, username, auth);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+
+
     }
 
 
@@ -254,11 +297,6 @@ public class ChatActivity extends Activity implements UserSendInterface, LoadMes
 
         // Get message string from editview
         String message = mMessageText.getText().toString();
-
-        //get user infos from sharedPreferences
-        SharedPreferences sPrefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        String username = sPrefs.getString("username", null);
-        String auth = sPrefs.getString("auth", null);
 
         // Execute asynchronus task to send message
         userSendTask = new UserSendTask(false, sendInterface);

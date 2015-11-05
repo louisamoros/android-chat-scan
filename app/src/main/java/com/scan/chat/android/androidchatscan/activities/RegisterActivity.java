@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,12 +39,12 @@ public class RegisterActivity extends Activity implements UserRegisterInterface{
     private String password;
 
     // UI references.
-    public static View mProgressView;
     public static View mLoginFormView;
     private EditText mUsernameView;
     private EditText mPasswordView;
     private EditText mPasswordConfirmView;
     private Button mRegisterButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,7 @@ public class RegisterActivity extends Activity implements UserRegisterInterface{
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordConfirmView = (EditText) findViewById(R.id.password_confirmation);
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar_register);
 
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -148,7 +149,7 @@ public class RegisterActivity extends Activity implements UserRegisterInterface{
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            //showProgress(true);
+            progressBar.setVisibility(View.VISIBLE);
             userRegisterTask = new UserRegisterTask(activityInterface);
             userRegisterTask.execute(username, password);
         }
@@ -158,6 +159,7 @@ public class RegisterActivity extends Activity implements UserRegisterInterface{
     @Override
     public void onRegisterSuccess(User newUser) {
         // Everything good!
+        progressBar.setVisibility(View.GONE);
         Toast.makeText(RegisterActivity.this, R.string.register_success, LENGTH_LONG).show();
 
         // Declare activity switch intent
@@ -179,6 +181,7 @@ public class RegisterActivity extends Activity implements UserRegisterInterface{
 
     @Override
     public void onRegisterFailure() {
+        progressBar.setVisibility(View.GONE);
         Toast.makeText(RegisterActivity.this, R.string.register_error, LENGTH_LONG).show();
     }
 }
