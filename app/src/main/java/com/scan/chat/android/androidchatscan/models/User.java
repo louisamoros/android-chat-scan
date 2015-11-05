@@ -2,9 +2,6 @@ package com.scan.chat.android.androidchatscan.models;
 
 import android.util.Base64;
 
-/**
- * Created by guillaumenostrenoff on 20/10/15.
- */
 public class User {
 
     private String login;

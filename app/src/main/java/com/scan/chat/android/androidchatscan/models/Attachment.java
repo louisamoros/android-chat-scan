@@ -1,8 +1,5 @@
 package com.scan.chat.android.androidchatscan.models;
 
-/**
- * Created by guillaumenostrenoff on 14/10/15.
- */
 public class Attachment {
 
     private String mimeType;

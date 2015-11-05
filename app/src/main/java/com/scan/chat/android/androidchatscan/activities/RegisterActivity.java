@@ -25,14 +25,8 @@ import com.scan.chat.android.androidchatscan.tasks.UserRegisterTask;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-/**
- * A login screen that offers login via username/password.
- */
 public class RegisterActivity extends Activity implements UserRegisterInterface{
 
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
     private UserRegisterTask userRegisterTask = null;
     private UserRegisterInterface activityInterface;
     private String username;
@@ -72,11 +66,11 @@ public class RegisterActivity extends Activity implements UserRegisterInterface{
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-            if (id == R.id.username || id == EditorInfo.IME_NULL) {
-                attemptRegister();
-                return true;
-            }
-            return false;
+                if (id == R.id.username || id == EditorInfo.IME_NULL) {
+                    attemptRegister();
+                    return true;
+                }
+                return false;
             }
         });
 

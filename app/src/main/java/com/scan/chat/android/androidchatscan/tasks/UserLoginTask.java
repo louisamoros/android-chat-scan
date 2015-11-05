@@ -1,9 +1,5 @@
 package com.scan.chat.android.androidchatscan.tasks;
 
-/**
- * Created by guillaumenostrenoff on 16/10/15.
- */
-
 import android.os.AsyncTask;
 
 import com.scan.chat.android.androidchatscan.activities.MainActivity;
@@ -14,10 +10,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Represents an asynchronous login/registration task used to authenticate
- * the user.
- */
 public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
 
     private UserLoginInterface activityInterface;

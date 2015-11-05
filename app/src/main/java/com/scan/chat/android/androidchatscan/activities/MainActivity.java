@@ -29,7 +29,6 @@ import com.scan.chat.android.androidchatscan.tasks.UserLoginTask;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-
 public class MainActivity extends Activity  implements UserLoginInterface {
 
     public static final String API_BASE_URL = "http://training.loicortola.com/chat-rest/2.0";
@@ -86,21 +85,21 @@ public class MainActivity extends Activity  implements UserLoginInterface {
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-            if (id == R.id.username || id == EditorInfo.IME_NULL) {
-                attemptLogin();
-                return true;
-            }
-            return false;
+                if (id == R.id.username || id == EditorInfo.IME_NULL) {
+                    attemptLogin();
+                    return true;
+                }
+                return false;
             }
         });
 
         // Sign in button
         mSignInButton = (Button) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    attemptLogin();
-                }
+            @Override
+            public void onClick(View view) {
+                attemptLogin();
+            }
         });
 
         // Register button

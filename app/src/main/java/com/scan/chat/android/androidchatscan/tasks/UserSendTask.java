@@ -1,9 +1,5 @@
 package com.scan.chat.android.androidchatscan.tasks;
 
-/**
- * Created by guillaumenostrenoff on 15/10/15.
- */
-
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
@@ -18,9 +14,6 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Represents an asynchronous message sending task
- */
 public class UserSendTask extends AsyncTask<String, Void, Boolean> {
 
     private Message message;    //true if image must be attached

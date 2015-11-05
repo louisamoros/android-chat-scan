@@ -8,9 +8,6 @@ import com.scan.chat.android.androidchatscan.activities.MainActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by louis on 10/13/15.
- */
 public class Message {
 
     private String uuid;
